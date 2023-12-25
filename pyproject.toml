@@ -1,0 +1,72 @@
+[tool.poetry]
+name = "Great Asset"
+version = "0.0.1"
+description = "A small headless library for editing Lethal Company save files."
+authors = ["Alex Nørgaard <umbra@abstractumbra.dev>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pycryptodome = "^3.19.0"
+orjson = { version = "*", optional = true }
+
+[tool.poetry.group.dev.dependencies]
+ruff = "*"
+
+[tool.poetry.group.speed.dependencies]
+orjson = "*"
+
+[tool.poetry.extras]
+speed = ["orjson"]
+
+[tool.ruff]
+line-length = 125
+select = [
+    "C4",
+    "F",
+    "G",
+    "I",
+    "PTH",
+    "RUF",
+    "SIM",
+    "TCH",
+    "UP",
+    "W",
+    "PERF",
+    "ANN",
+]
+ignore = [
+    "F401",
+    "F402",
+    "F403",
+    "F405",
+    "PERF203",
+    "PLR2004",
+    "RUF001",
+    "RUF009",
+    "SIM105",
+    "S101",
+    "UP034",
+    "UP038",
+    "ANN101",
+    "ANN102",
+    "ANN401",
+]
+[tool.ruff.isort]
+split-on-trailing-comma = true
+combine-as-imports = true
+
+[tool.ruff.flake8-annotations]
+allow-star-arg-any = true
+
+[tool.ruff.flake8-quotes]
+inline-quotes = "single"
+
+[tool.pyright]
+useLibraryCodeForTypes = true
+typeCheckingMode = "strict"
+pythonVersion = "3.11"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
