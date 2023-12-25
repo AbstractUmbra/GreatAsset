@@ -28,12 +28,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from .crypt import decrypt, encrypt
-from .enums import ShipUnlocks
 from .utils import to_json
 
 if TYPE_CHECKING:
     from os import PathLike
 
+    from .enums import ShipUnlocks
     from .types_.save_file import (
         InnerVectorValue,
         SaveFile as SaveFileType,
