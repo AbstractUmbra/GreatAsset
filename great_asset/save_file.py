@@ -138,10 +138,18 @@ class SaveFile:
     def unlocked_ship_objects(self) -> list[int]:
         return self._unlocked_ship_objects.get("value", [])
 
-    def unlock_ship_upgrade(self, *items: ShipUnlocks) -> None:
+    def unlock_ship_upgrades(self, *items: ShipUnlocks) -> None:
         for item in items:
             self.unlocked_ship_objects.append(item.serialised_value)
             self._extra_data[f"ShipUnlockStored_{item.serialised_name}"] = True
+
+    def remove_ship_upgrades(self, *items: ShipUnlocks) -> None:
+        for item in items:
+            try:
+                self.unlocked_ship_objects.remove(item.serialised_value)
+            except ValueError:
+                pass
+            self._extra_data[f"ShipUnlockStored_{item.serialised_name}"] = False
 
     def _upsert_value(self, key_name: str, value: Any) -> None:
         if isinstance(value, int):
@@ -163,7 +171,7 @@ class SaveFile:
         except KeyError:
             self._inner_data[key_name] = {"__type": _type, "value": value}
 
-    def dump(self) -> None:
+    def serialise(self, *, write: bool = True) -> None:
         self._upsert_value("GroupCredits", self.credits)
         self._upsert_value("DeadlineTime", self.deadline)
         self._upsert_value("Stats_StepsTaken", self.steps)
@@ -187,6 +195,10 @@ class SaveFile:
         for key, value in self._extra_data.items():
             self._upsert_value(key, value)
 
+        if write:
+            self.dump()
+
+    def dump(self) -> None:
         decrypted_result = _to_json(self._inner_data)
 
         with TEMP_FILE.open("wb") as fp:
