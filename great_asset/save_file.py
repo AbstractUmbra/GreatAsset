@@ -96,7 +96,7 @@ class SaveFile:
         self.seed = data["RandomSeed"]["value"]
 
         self._enemy_scans = data.get("EnemyScans", {"__type": "System.Int32[],mscorlib", "value": []})
-        self._passed_current_quota = data["QuotaFulfilled"]["value"]
+        self.current_quota_progress = data["QuotaFulfilled"]["value"]
         self._ship_scrap = data.get("shipScrapValues", {"__type": "System.Int32[],mscorlib", "value": []})
         self._ship_grabbable_items = data.get("shipGrabbableItemIDs", {"__type": "System.Int32[],mscorlib", "value": []})
         self._ship_grabbable_item_positions = data.get(
@@ -109,10 +109,6 @@ class SaveFile:
         # we'll serialise anything in here into the final payload
         # for now this will just be how we add the UnlockedStored_X keys
         self._extra_data = {}
-
-    @property
-    def current_quota_met(self) -> bool:
-        return bool(self._passed_current_quota)
 
     @property
     def enemy_scans(self) -> list[int]:
@@ -184,7 +180,7 @@ class SaveFile:
 
         self._upsert_value("ProfitQuota", self.quota_threshold)
         self._upsert_value("QuotasPassed", self.quotas_met)
-        self._upsert_value("QuotaFulfilled", self._passed_current_quota)
+        self._upsert_value("QuotaFulfilled", self.current_quota_progress)
         self._upsert_value("RandomSeed", self.seed)
         self._upsert_value("CurrentPlanetID", self.current_planet_id)
 
