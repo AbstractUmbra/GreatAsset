@@ -3,7 +3,33 @@ name = "Great Asset"
 version = "0.0.1"
 description = "A small headless library for editing Lethal Company save files."
 authors = ["Alex Nørgaard <umbra@abstractumbra.dev>"]
+
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/AbstractUmbra/great_asset"
+
+keywords = ["save-editor", "wrapper", "lethal-company"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Education",
+    "Intended Audience :: End Users/Desktop",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet",
+    "Typing :: Typed",
+]
+include = ["LICENSE"]
+packages = [
+    { include = "great_asset" },
+    { include = "great_asset/**/*.py" },
+    { include = "great_asset/py.typed" },
+]
+
+[tool.poetry.urls]
+"Issue Tracker" = "https://github.com/AbstractUmbra/great_asset/issues"
+"Discord" = "https://discord.gg/aYGYJxwqe5"
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -12,6 +38,7 @@ orjson = { version = "*", optional = true }
 
 [tool.poetry.group.dev.dependencies]
 ruff = "*"
+pytest = "*"
 
 [tool.poetry.group.speed.dependencies]
 orjson = "*"
@@ -66,6 +93,10 @@ inline-quotes = "single"
 useLibraryCodeForTypes = true
 typeCheckingMode = "strict"
 pythonVersion = "3.11"
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+testpaths = ["tests"]
 
 [build-system]
 requires = ["poetry-core"]
