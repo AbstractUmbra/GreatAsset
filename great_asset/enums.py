@@ -48,6 +48,10 @@ class ShipUnlocks(Enum):
         return self._serialised_name
 
 
+class ExtraUnlocks(Enum):
+    pyjama_suit = 3
+
+
 class Items(Enum):
     binoculars = 0  # not yet implemented
     boom_box = 1

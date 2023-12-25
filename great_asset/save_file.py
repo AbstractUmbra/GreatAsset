@@ -33,7 +33,7 @@ from .utils import _to_json  # type: ignore # we'll allow this private usage for
 if TYPE_CHECKING:
     from os import PathLike
 
-    from .enums import ShipUnlocks
+    from .enums import ExtraUnlocks, ShipUnlocks
     from .types_.save_file import (
         InnerVectorValue,
         SaveFile as SaveFileType,
@@ -150,6 +150,10 @@ class SaveFile:
             except ValueError:
                 pass
             self._extra_data[f"ShipUnlockStored_{item.serialised_name}"] = False
+
+    def unlock_extras(self, *items: ExtraUnlocks) -> None:
+        for item in items:
+            self.unlocked_ship_objects.append(item.value)
 
     def _upsert_value(self, key_name: str, value: Any) -> None:
         if isinstance(value, int):
