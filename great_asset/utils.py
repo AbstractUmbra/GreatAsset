@@ -26,23 +26,23 @@ import json
 from typing import Any
 
 __all__ = (
-    "to_json",
-    "from_json",
+    "_to_json",
+    "_from_json",
 )
 
 try:
     import orjson
 except ModuleNotFoundError:
 
-    def to_json(obj: Any, /) -> str:
+    def _to_json(obj: Any, /) -> str:
         """A quick method that dumps a Python type to JSON object."""
         return json.dumps(obj, separators=(",", ":"), ensure_ascii=True, indent=2, sort_keys=True)
 
-    from_json = json.loads  # type: ignore # the overloads are too much for our use case.
+    _from_json = json.loads  # type: ignore # the overloads are too much for our use case.
 else:
 
-    def to_json(obj: Any, /) -> str:
+    def _to_json(obj: Any, /) -> str:
         """A quick method that dumps a Python type to JSON object."""
         return orjson.dumps(obj, option=orjson.OPT_INDENT_2 | orjson.OPT_SORT_KEYS).decode("utf-8")
 
-    from_json = orjson.loads  # type: ignore # this is guarded in an if.
+    _from_json = orjson.loads  # type: ignore # this is guarded in an if.

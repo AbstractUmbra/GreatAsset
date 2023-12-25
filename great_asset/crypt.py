@@ -32,7 +32,7 @@ from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Util.Padding import pad, unpad
 
 from . import CRYPTO_PASSWORD
-from .utils import from_json
+from .utils import _from_json  # type: ignore # allowing this private usage
 
 if TYPE_CHECKING:
     from os import PathLike
@@ -94,4 +94,4 @@ def decrypt(path: str | PathLike[str] | Path, /) -> SaveFileType:
     # and it's always UTF-8
     resolved_data = decrypted_data.decode("utf-8")
 
-    return from_json(resolved_data)
+    return _from_json(resolved_data)

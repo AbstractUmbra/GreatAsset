@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from .crypt import decrypt, encrypt
-from .utils import to_json
+from .utils import _to_json  # type: ignore # we'll allow this private usage for now
 
 if TYPE_CHECKING:
     from os import PathLike
@@ -187,7 +187,7 @@ class SaveFile:
         for key, value in self._extra_data.items():
             self._upsert_value(key, value)
 
-        decrypted_result = to_json(self._inner_data)
+        decrypted_result = _to_json(self._inner_data)
 
         with TEMP_FILE.open("wb") as fp:
             fp.write(decrypted_result.encode("utf-8"))
