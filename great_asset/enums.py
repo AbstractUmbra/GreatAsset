@@ -32,8 +32,20 @@ __all__ = (
 
 
 class ShipUnlocks(Enum):
-    teleporter = 5
-    inverse_teleporter = 19
+    teleporter = 5, "Teleporter"
+    inverse_teleporter = 19, "Inverse Teleporter"
+
+    def __init__(self, value: int, serialised_name: str) -> None:
+        self._serialised_value: int = value
+        self._serialised_name: str = serialised_name
+
+    @property
+    def serialised_value(self) -> int:
+        return self._serialised_value
+
+    @property
+    def serialised_name(self) -> str:
+        return self._serialised_name
 
 
 class Items(Enum):

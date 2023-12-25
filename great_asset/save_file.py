@@ -138,13 +138,10 @@ class SaveFile:
     def unlocked_ship_objects(self) -> list[int]:
         return self._unlocked_ship_objects.get("value", [])
 
-    def add_teleporter(self) -> None:
-        self.unlocked_ship_objects.append(ShipUnlocks.teleporter.value)
-        self._extra_data["ShipUnlockStored_Teleporter"] = True
-
-    def add_inverse_teleporter(self) -> None:
-        self.unlocked_ship_objects.append(ShipUnlocks.inverse_teleporter.value)
-        self._extra_data["ShipUnlockStored_Inverse Teleporter"] = True
+    def unlock_ship_upgrade(self, *items: ShipUnlocks) -> None:
+        for item in items:
+            self.unlocked_ship_objects.append(item.serialised_value)
+            self._extra_data[f"ShipUnlockStored_{item.serialised_name}"] = True
 
     def _upsert_value(self, key_name: str, value: Any) -> None:
         if isinstance(value, int):
