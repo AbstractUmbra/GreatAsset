@@ -38,7 +38,7 @@ except ModuleNotFoundError:
         """A quick method that dumps a Python type to JSON object."""
         return json.dumps(obj, separators=(",", ":"), ensure_ascii=True, indent=2, sort_keys=True)
 
-    from_json = json.loads
+    from_json = json.loads  # type: ignore # the overloads are too much for our use case.
 else:
 
     def to_json(obj: Any, /) -> str:
