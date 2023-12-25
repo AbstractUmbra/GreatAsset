@@ -26,14 +26,26 @@ from enum import Enum
 
 __all__ = (
     "ShipUnlocks",
+    "ExtraUnlocks",
     "Items",
     "Planets",
 )
 
 
 class ShipUnlocks(Enum):
+    signal_translator = 0, "Signal transmitter"
+    signal_transmitter = 0, "Signal transmitter"
     teleporter = 5, "Teleporter"
+    television = 6, "Television"
+    tv = 6, "Television"
+    # = 7
+    shower = 10, "Shower"
+    table = 13, "Table"
+    # = 11
+    # = 15
+    loud_horn = 18, "Loud horn"
     inverse_teleporter = 19, "Inverse Teleporter"
+    goldfish = 22, "Goldfish"
 
     def __init__(self, value: int, serialised_name: str) -> None:
         self._serialised_value: int = value
