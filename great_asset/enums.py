@@ -25,14 +25,14 @@ DEALINGS IN THE SOFTWARE.
 from enum import Enum
 
 __all__ = (
-    "ShipUnlocks",
-    "ExtraUnlocks",
-    "Items",
-    "Planets",
+    "ShipUnlock",
+    "ExtraUnlock",
+    "Item",
+    "Planet",
 )
 
 
-class ShipUnlocks(Enum):
+class ShipUnlock(Enum):
     signal_translator = 0, "Signal transmitter"
     signal_transmitter = 0, "Signal transmitter"
     teleporter = 5, "Teleporter"
@@ -60,11 +60,11 @@ class ShipUnlocks(Enum):
         return self._serialised_name
 
 
-class ExtraUnlocks(Enum):
+class ExtraUnlock(Enum):
     pyjama_suit = 3
 
 
-class Items(Enum):
+class Item(Enum):
     binoculars = 0  # not yet implemented
     boom_box = 1
     flashlight = 3
@@ -133,7 +133,7 @@ class Items(Enum):
     whoopie_cushion = 67
 
 
-class Planets(Enum):
+class Planet(Enum):
     experimentation = 0
     assurance = 1
     vow = 2
