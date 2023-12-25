@@ -40,7 +40,7 @@ class BoolValue(TypedDict):
 
 
 class ArrayIntValue(TypedDict):
-    __type: Literal["System.Int32[].mscorlib"]
+    __type: Literal["System.Int32[],mscorlib"]
     value: list[int]
 
 
