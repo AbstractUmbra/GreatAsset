@@ -1,0 +1,69 @@
+name: Type Coverage and Linting
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types: [opened, reopened, synchronize]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.x"]
+
+    name: "Type Coverage and Linting @ ${{ matrix.python-version }}"
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: "Load cached poetry installation @ ${{ matrix.python-version }}"
+        id: cached-poetry
+        uses: actions/cache@v3
+        with:
+          path: ~/.local
+          key: poetry-0
+
+      - name: "Setup Poetry @ ${{ matrix.python-version }}"
+        if: steps.cached-poetry.outputs.cache-hit != 'true'
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: "Setup Python @ ${{ matrix.python-version }}"
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "${{ matrix.python-version }}"
+          cache: "poetry"
+
+      - name: "Install Python deps @ ${{ matrix.python-version }}"
+        if: ${{ steps.setup-python.outputs.cache-hit != 'true' }}
+        id: install-deps
+        run: |
+          poetry install --without=dev --no-interaction
+
+      - name: Activate venv @ ${{ matrix.python-version }}
+        run: |
+          echo "$(poetry env info --path)/bin" >> $GITHUB_PATH
+
+      - name: "Run Pyright @ ${{ matrix.python-version }}"
+        uses: jakebailey/pyright-action@v1
+        with:
+          warnings: false
+          verify-types: "great_asset"
+          ignore-external: true
+          no-comments: ${{ matrix.python-version != '3.x' }}
+
+      - name: Lint
+        if: ${{ always() && steps.install-deps.outcome == 'success' }}
+        uses: chartboost/ruff-action@v1
