@@ -200,4 +200,4 @@ speed = ["orjson"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "a259c68e15613c784fcaa7ff388f96509e4ed9a10ae9b3837193f24d5828a96b"
+content-hash = "4d9d79bac0f7052fd137de606549209d2cf48ed551ad840a20ec297eeb3e569b"
