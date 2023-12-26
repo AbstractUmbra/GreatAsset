@@ -470,7 +470,7 @@ class SaveFile:
             Whether to overwrite the passed file with the changes. Defaults to ``True``.
         overwrite: :class:`bool`
             Whether to overwrite the existing save file with the changes. Defaults to ``True``.
-            Irrelevant if :param:`dump_to_file` is ``False``.
+            Irrelevant if ``dump_to_file`` is ``False``.
             Creates a file with the same name with the file extension of ``".over"``.
         """
         # manually handle the more complex types:
