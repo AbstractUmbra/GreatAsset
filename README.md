@@ -4,14 +4,14 @@
         <br>
     </h1>
     <a href='https://github.com/AbstractUmbra/great_asset/actions/workflows/build.yaml'>
-        <img src='https://github.com/AbstractUmbra/great_asset/actions/workflows/build.yaml/badge.svg' alt='Build status' />
+        <img src='https://github.com/AbstractUmbra/great-asset/actions/workflows/build.yaml/badge.svg' alt='Build status' />
     </a>
     <a href='https://github.com/AbstractUmbra/Hondana/great_asset/workflows/coverage_and_lint.yaml'>
         <img src='https://github.com/AbstractUmbra/great_asset/actions/workflows/coverage_and_lint.yaml/badge.svg' alt='Linting and Typechecking' />
     </a>
 </div>
 <div align="center">
-    <a href='https://great_asset.readthedocs.io/en/latest/?badge=latest'>
+    <a href='https://great-asset.readthedocs.io/en/latest/?badge=latest'>
         <img src='https://readthedocs.org/projects/great_asset/badge/?version=latest' alt='Documentation Status' />
     </a>
     <a href="https://discord.gg/aYGYJxwqe5">
