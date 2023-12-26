@@ -176,7 +176,7 @@ class SaveFile:
 
         Returns
         --------
-        :class:`~great_asset.Planet`
+        :class:`~great_asset.Moon`
         """
         return Moon(self._current_planet_id)
 
@@ -278,16 +278,16 @@ class SaveFile:
         """
         self._upsert_value("GroupCredits", new_credits)
 
-    def update_current_moon(self, planet: Moon, /) -> None:
+    def update_current_moon(self, moon: Moon, /) -> None:
         """
         Update the current planet within the save file.
 
         Parameters
         -----------
-        planet: :class:`~great_asset.Planet`
+        planet: :class:`~great_asset.Moon`
             The planet to update to.
         """
-        self._upsert_value("CurrentPlanetID", planet.value)
+        self._upsert_value("CurrentPlanetID", moon.value)
 
     def update_steps_taken(self, new_steps: int, /) -> None:
         """
