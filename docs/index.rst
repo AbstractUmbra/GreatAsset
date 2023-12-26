@@ -8,10 +8,6 @@
 
 .. raw:: html
 
-   <img src="_static/logo.svg" class="featuring-logo only-light">
-   <img src="_static/logo.svg" class="featuring-logo only-dark">
-   <hr class="featuring-hr">
-
    <p class="index-featuring">
 
       <b>A competently featured <a href="https://www.python.org/">Python</a> wrapper for the Lethal Company save file format.</b>
@@ -29,12 +25,9 @@
 
    <div class="index-apis-wrapper">
       <div class="index-apis-section">
-         <b>great_asset Tool Reference:</b>
+         <b>References:-</b>
          <ul class="index-featuring-list">
-            <li><a href="api.html" class="reference internal">API Reference</a></li>
-         </ul>
-         <ul class="index-featuring-list">
-            <li><a href="types.html" class="reference internal">Library Types</a></li>
+            <li><a href="api.html" class="reference internal">Tool Reference</a></li>
          </ul>
       </div>
    </div>
