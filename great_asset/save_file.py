@@ -29,8 +29,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from .crypt import decrypt, encrypt
-from .enums import Moon
+from .enums import Item, Moon
 from .utils import _to_json  # type: ignore # we'll allow this private usage for now
+from .vector import Vector
 
 if TYPE_CHECKING:
     from os import PathLike
@@ -399,6 +400,31 @@ class SaveFile:
         """
         for item in items:
             self._unlocked_ship_objects["value"].append(item.value)
+
+    def spawn_items(self, *items: tuple[Item, Vector | None]) -> None:
+        """
+        Spawn items within the world or ship.
+
+        Parameters
+        -----------
+        *items: tuple[:class:`~great_asset.Item`, :class:`~great_asset.Vector` | :class:`None`]
+            A series of tuples with the Item and it's position to spawn in.
+            Using ``None`` as the second value will spawn at a default area near the door of the ship internally.
+        """
+        for item in items:
+            vec = item[1] or Vector.default()
+            self._ship_grabbable_items["value"].append(item[0].value)
+            self._ship_grabbable_item_positions["value"].append(vec.serialise())
+
+    def get_current_items(self) -> list[Item]:
+        """
+        Get the current items that exist within the ship in the save file.
+
+        Returns
+        --------
+        list[:class:`~great_asset.Item`]
+        """
+        return [Item(item) for item in self._ship_grabbable_items["value"]]
 
     def _generate_seed(self, *, max: int = 99999999, min: int = 10000000) -> int:
         return random.randint(min, max)
