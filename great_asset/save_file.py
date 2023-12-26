@@ -29,14 +29,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from .crypt import decrypt, encrypt
-from .enums import Item, Moon
+from .enums import ExtraUnlock, Item, Moon, ShipUnlock
 from .utils import _to_json  # type: ignore # we'll allow this private usage for now
 from .vector import Vector
 
 if TYPE_CHECKING:
     from os import PathLike
 
-    from .enums import ExtraUnlock, ShipUnlock
     from .types_.save_file import (
         SaveFile as SaveFileType,
     )
@@ -373,6 +372,12 @@ class SaveFile:
             self._unlocked_ship_objects["value"].append(item.serialised_value)
             self._extra_data[f"ShipUnlockStored_{item.serialised_name}"] = True
 
+    def unlock_all_ship_upgrades(self) -> None:
+        """
+        Unlocks all possible ship upgrades.
+        """
+        return self.unlock_ship_upgrades(*ShipUnlock.all())
+
     def remove_ship_upgrades(self, *items: ShipUnlock) -> None:
         """
         Remove upgrades from the ship.
@@ -400,6 +405,12 @@ class SaveFile:
         """
         for item in items:
             self._unlocked_ship_objects["value"].append(item.value)
+
+    def unlock_all_ship_extras(self) -> None:
+        """
+        Unlock all possible ship extras.
+        """
+        return self.unlock_extras(*ExtraUnlock.all())
 
     def spawn_items(self, *items: tuple[Item, Vector | None]) -> None:
         """

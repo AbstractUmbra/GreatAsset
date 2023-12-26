@@ -59,9 +59,17 @@ class ShipUnlock(Enum):
     def serialised_name(self) -> str:
         return self._serialised_name
 
+    @staticmethod
+    def all() -> list["ShipUnlock"]:
+        return list(ShipUnlock)
+
 
 class ExtraUnlock(Enum):
     pyjama_suit = 3
+
+    @staticmethod
+    def all() -> list["ExtraUnlock"]:
+        return list(ExtraUnlock)
 
 
 class Item(Enum):
