@@ -6,7 +6,7 @@ This is the documentation and tooling reference for great_asset.
 
 SaveFile
 --------
-.. autoclass: SaveFile
+.. autoclass:: SaveFile
     :members:
 
 Enumerations
