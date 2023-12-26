@@ -22,7 +22,31 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 
+__title__ = "great_asset"
+__author__ = "AbstractUmbra"
+__license__ = "MIT"
+__copyright__ = "Copyright 2023-present AbstractUmbra"
+__version__ = "0.0.1"
+
 CRYPTO_PASSWORD = "lcslime14a5"
+
+import logging
+from typing import Literal, NamedTuple
 
 from .enums import *
 from .save_file import SaveFile as SaveFile
+
+
+class VersionInfo(NamedTuple):
+    major: int
+    minor: int
+    micro: int
+    releaselevel: Literal["alpha", "beta", "candidate", "final"]
+    serial: int
+
+
+version_info: VersionInfo = VersionInfo(major=0, minor=0, micro=1, releaselevel="alpha", serial=0)
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+
+del logging, NamedTuple, Literal, VersionInfo
