@@ -5,3 +5,4 @@ _test_files/
 _previously_decrypted_file.json
 docs/build
 docs/_build
+dist/
