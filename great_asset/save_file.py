@@ -449,7 +449,7 @@ class SaveFile:
         except KeyError:
             self._inner_data[key_name] = {"__type": _type, "value": value}
 
-    def write(self, *, dump_to_file: bool = True) -> None:
+    def write(self, *, dump_to_file: bool = True, overwrite: bool = True) -> None:
         """
         A function to write the save file data to the internal data structure.
 
@@ -457,6 +457,10 @@ class SaveFile:
         -----------
         dump_to_file: :class:`bool`
             Whether to overwrite the passed file with the changes. Defaults to ``True``.
+        overwrite: :class:`bool`
+            Whether to overwrite the existing save file with the changes. Defaults to ``True``.
+            Irrelevant if :param:`dump_to_file` is ``False``.
+            Creates a file with the same name with the file extension of ``".over"``.
         """
         # manually handle the more complex types:
         self._upsert_value("UnlockedShipObjects", list(set(self._unlocked_ship_objects["value"])))
@@ -469,9 +473,9 @@ class SaveFile:
             self._upsert_value(key, value)
 
         if dump_to_file:
-            self._dump()
+            self._dump(overwrite=overwrite)
 
-    def _dump(self) -> None:
+    def _dump(self, overwrite: bool) -> None:
         decrypted_result = _to_json(self._inner_data)
 
         with TEMP_FILE.open("wb") as fp:
@@ -479,5 +483,7 @@ class SaveFile:
 
         encrypted_result = encrypt(TEMP_FILE)
 
-        with self.path.open("wb") as fp:
+        p = self.path if overwrite else self.path.with_suffix(".over")
+
+        with p.open("wb") as fp:
             fp.write(encrypted_result)
