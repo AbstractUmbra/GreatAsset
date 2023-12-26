@@ -28,7 +28,7 @@ __all__ = (
     "ShipUnlock",
     "ExtraUnlock",
     "Item",
-    "Planet",
+    "Moon",
 )
 
 
@@ -133,7 +133,7 @@ class Item(Enum):
     whoopie_cushion = 67
 
 
-class Planet(Enum):
+class Moon(Enum):
     experimentation = 0
     assurance = 1
     vow = 2

@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from .crypt import decrypt, encrypt
-from .enums import Planet
+from .enums import Moon
 from .utils import _to_json  # type: ignore # we'll allow this private usage for now
 
 if TYPE_CHECKING:
@@ -170,7 +170,7 @@ class SaveFile:
         return self._credits
 
     @property
-    def current_planet(self) -> Planet:
+    def current_moon(self) -> Moon:
         """
         Get the current planet within the save.
 
@@ -178,7 +178,7 @@ class SaveFile:
         --------
         :class:`~great_asset.Planet`
         """
-        return Planet(self._current_planet_id)
+        return Moon(self._current_planet_id)
 
     @property
     def steps_taken(self) -> int:
@@ -278,7 +278,7 @@ class SaveFile:
         """
         self._upsert_value("GroupCredits", new_credits)
 
-    def update_current_planet(self, planet: Planet, /) -> None:
+    def update_current_moon(self, planet: Moon, /) -> None:
         """
         Update the current planet within the save file.
 
