@@ -37,7 +37,6 @@ if TYPE_CHECKING:
 
     from .enums import ExtraUnlock, ShipUnlock
     from .types_.save_file import (
-        InnerVectorValue,
         SaveFile as SaveFileType,
     )
 
@@ -120,6 +119,7 @@ class SaveFile:
         self._seed = data["RandomSeed"]["value"]
         self._steps_taken = data["Stats_StepsTaken"]["value"]
 
+        # TODO: richer interface here.
         self._enemy_scans = data.get("EnemyScans", {"__type": "System.Int32[],mscorlib", "value": []})
         self._ship_scrap = data.get("shipScrapValues", {"__type": "System.Int32[],mscorlib", "value": []})
         self._ship_grabbable_items = data.get("shipGrabbableItemIDs", {"__type": "System.Int32[],mscorlib", "value": []})
@@ -133,30 +133,6 @@ class SaveFile:
         # we'll serialise anything in here into the final payload
         # for now this will just be how we add the UnlockedStored_X keys
         self._extra_data = {}
-
-    @property
-    def enemy_scans(self) -> list[int]:
-        return self._enemy_scans.get("value", [])
-
-    @property
-    def ship_item_save_data(self) -> list[int]:
-        return self._ship_item_save_data.get("value", [])
-
-    @property
-    def ship_scrap(self) -> list[int]:
-        return self._ship_scrap.get("value", [])
-
-    @property
-    def ship_grabbable_items(self) -> list[int]:
-        return self._ship_grabbable_items.get("value", [])
-
-    @property
-    def ship_grabbable_item_positions(self) -> list[InnerVectorValue]:
-        return self._ship_grabbable_item_positions.get("value", [])
-
-    @property
-    def unlocked_ship_objects(self) -> list[int]:
-        return self._unlocked_ship_objects.get("value", [])
 
     @property
     def credits(self) -> int:
@@ -380,21 +356,49 @@ class SaveFile:
         self._upsert_value("RandomSeed", seed)
 
     def unlock_ship_upgrades(self, *items: ShipUnlock) -> None:
+        """
+        Unlock upgrades for the ship.
+
+        Parameters
+        -----------
+        *items: :class:`~great_asset.ShipUnlock`
+            The items to unlock in the ship.
+
+
+        .. note::
+            The items unlocked will be added into storage, please access them from the terminal to place them.
+        """
         for item in items:
-            self.unlocked_ship_objects.append(item.serialised_value)
+            self._unlocked_ship_objects["value"].append(item.serialised_value)
             self._extra_data[f"ShipUnlockStored_{item.serialised_name}"] = True
 
     def remove_ship_upgrades(self, *items: ShipUnlock) -> None:
+        """
+        Remove upgrades from the ship.
+
+        Parameters
+        -----------
+        *items: :class:`~great_asset.ShipUnlock`
+            The items to remove from the ship.
+        """
         for item in items:
             try:
-                self.unlocked_ship_objects.remove(item.serialised_value)
+                self._unlocked_ship_objects["value"].remove(item.serialised_value)
             except ValueError:
                 pass
             self._extra_data[f"ShipUnlockStored_{item.serialised_name}"] = False
 
     def unlock_extras(self, *items: ExtraUnlock) -> None:
+        """
+        Unlock other items within the ship or for the player(s).
+
+        Parameters
+        -----------
+        *items: :class:`~great_asset.ExtraUnlock`
+            The items to unlock.
+        """
         for item in items:
-            self.unlocked_ship_objects.append(item.value)
+            self._unlocked_ship_objects["value"].append(item.value)
 
     def _generate_seed(self, *, max: int = 99999999, min: int = 10000000) -> int:
         return random.randint(min, max)
@@ -420,8 +424,16 @@ class SaveFile:
             self._inner_data[key_name] = {"__type": _type, "value": value}
 
     def write(self, *, dump_to_file: bool = True) -> None:
+        """
+        A function to write the save file data to the internal data structure.
+
+        Parameters
+        -----------
+        dump_to_file: :class:`bool`
+            Whether to overwrite the passed file with the changes. Defaults to ``True``.
+        """
         # manually handle the more complex types:
-        self._upsert_value("UnlockedShipObjects", list(set(self.unlocked_ship_objects)))
+        self._upsert_value("UnlockedShipObjects", list(set(self._unlocked_ship_objects["value"])))
         self._inner_data["shipScrapValues"] = self._ship_scrap
         self._inner_data["shipGrabbableItemIDs"] = self._ship_grabbable_items
         self._inner_data["shipGrabbableItemPos"] = self._ship_grabbable_item_positions
