@@ -86,6 +86,7 @@ ignore = [
     "ANN102",
     "ANN401",
 ]
+exclude = ["docs/"]
 [tool.ruff.isort]
 split-on-trailing-comma = true
 combine-as-imports = true
