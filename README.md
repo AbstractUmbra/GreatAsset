@@ -4,9 +4,9 @@
         <br>
     </h1>
     <a href='https://github.com/AbstractUmbra/great_asset/actions/workflows/build.yaml'>
-        <img src='https://github.com/AbstractUmbra/great-asset/actions/workflows/build.yaml/badge.svg' alt='Build status' />
+        <img src='https://github.com/AbstractUmbra/great_asset/actions/workflows/build.yaml/badge.svg' alt='Build status' />
     </a>
-    <a href='https://github.com/AbstractUmbra/Hondana/great_asset/workflows/coverage_and_lint.yaml'>
+    <a href='https://github.com/AbstractUmbra/great_asset/workflows/coverage_and_lint.yaml'>
         <img src='https://github.com/AbstractUmbra/great_asset/actions/workflows/coverage_and_lint.yaml/badge.svg' alt='Linting and Typechecking' />
     </a>
 </div>
