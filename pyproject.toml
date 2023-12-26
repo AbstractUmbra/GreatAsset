@@ -42,6 +42,11 @@ ruff = "*"
 [tool.poetry.group.speed.dependencies]
 orjson = "*"
 
+[tool.poetry.group.docs.dependencies]
+sphinx = "*"
+sphinxcontrib-trio = "*"
+furo = "*"
+
 [tool.poetry.group.tests.dependencies]
 pytest = "*"
 
@@ -92,6 +97,10 @@ allow-star-arg-any = true
 inline-quotes = "single"
 
 [tool.pyright]
+venvPath = "."
+venv = ".venv/"
+exclude = ["**/__pycache__", "docs/**/*.py"]
+include = ["great_asset", "tests"]
 useLibraryCodeForTypes = true
 typeCheckingMode = "strict"
 pythonVersion = "3.11"

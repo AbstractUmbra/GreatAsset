@@ -3,3 +3,5 @@
 # include double underscored files but single is ignored
 _test_files/
 _previously_decrypted_file.json
+docs/build
+docs/_build
