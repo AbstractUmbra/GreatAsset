@@ -38,6 +38,7 @@ orjson = { version = "*", optional = true }
 
 [tool.poetry.group.dev.dependencies]
 ruff = "*"
+poethepoet = "*"
 
 [tool.poetry.group.speed.dependencies]
 orjson = "*"
@@ -108,6 +109,26 @@ pythonVersion = "3.11"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.poe.tasks]
+install = "poetry install --with tests,docs,speed"
+check = "ruff check ."
+format = "ruff format ."
+pyright = "pyright"
+types_ = "pyright --ignoreexternal --verifytypes great_asset"
+types = ["pyright", "types_"]
+tests = "pytest"
+docs = "sphinx-build -aEWT --keep-going docs/ docs/build" # TODO: add -n when sphinx is fixed
+uninstall = "pip uninstall great_asset -y"
+pre = [
+    "install",
+    "check",
+    "format",
+    "types",
+    "tests",
+    "docs",
+    "uninstall",
+]
 
 [build-system]
 requires = ["poetry-core"]
