@@ -24,40 +24,11 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from typing import Literal, Required, TypedDict
+from typing import Required, TypedDict
+
+from .shared import *
 
 __all__ = ("SaveFile",)
-
-
-class IntValue(TypedDict):
-    __type: Literal["int"]
-    value: int
-
-
-class BoolValue(TypedDict):
-    __type: Literal["bool"]
-    value: bool
-
-
-class ArrayIntValue(TypedDict):
-    __type: Literal["System.Int32[],mscorlib"]
-    value: list[int]
-
-
-class InnerVectorValue(TypedDict):
-    x: float
-    y: float
-    z: float
-
-
-class VectorValue(TypedDict):
-    __type: Literal["Vector3"]
-    value: InnerVectorValue
-
-
-class ArrayVectorValue(TypedDict):
-    __type: Literal["UnityEngine.Vector3[],UnityEngine.CoreModule"]
-    value: list[InnerVectorValue]
 
 
 SaveFile = TypedDict(
@@ -76,6 +47,7 @@ SaveFile = TypedDict(
         "ShipUnlockedMoved_Light switch": BoolValue,
         "ShipUnlockedMoved_Loud horn": BoolValue,
         "ShipUnlockedMoved_Teleporter": BoolValue,
+        "ShipUnlockedMoved_Terminal": BoolValue,
         "ShipUnlockPos_Cupboard": VectorValue,
         "ShipUnlockPos_Light switch": VectorValue,
         "ShipUnlockPos_Loud horn": VectorValue,

@@ -24,7 +24,7 @@ DEALINGS IN THE SOFTWARE.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from Crypto import Random
 from Crypto.Cipher import AES
@@ -36,8 +36,6 @@ from .utils import _from_json  # type: ignore # allowing this private usage
 
 if TYPE_CHECKING:
     from os import PathLike
-
-    from .types_.save_file import SaveFile as SaveFileType
 
 __all__ = (
     "encrypt",
@@ -70,7 +68,7 @@ def encrypt(path: str | PathLike[str] | Path, /) -> bytes:
     return encrypted_data
 
 
-def decrypt(path: str | PathLike[str] | Path, /) -> SaveFileType:
+def decrypt(path: str | PathLike[str] | Path, /) -> Any:  # it returns the type of file we decrypt but alas
     if not isinstance(path, Path):
         path = Path(path)
 

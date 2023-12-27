@@ -34,7 +34,7 @@ import logging
 from typing import Literal, NamedTuple
 
 from .enums import *
-from .save_file import SaveFile as SaveFile
+from .save_file import ConfigFile as ConfigFile, SaveFile as SaveFile
 from .vector import Vector as Vector
 
 

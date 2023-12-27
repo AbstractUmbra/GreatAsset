@@ -22,4 +22,4 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 
-from . import save_file as save_file
+from . import config_file as config_file, save_file as save_file

@@ -30,20 +30,106 @@ from typing import TYPE_CHECKING, Any
 
 from .crypt import decrypt, encrypt
 from .enums import ExtraUnlock, Item, Moon, ShipUnlock
-from .utils import _to_json  # type: ignore # we'll allow this private usage for now
+from .utils import MISSING, _to_json  # type: ignore # we'll allow this private usage for now
 from .vector import Vector
 
 if TYPE_CHECKING:
     from os import PathLike
 
+    from .types_.config_file import ConfigFile as ConfigFileType
     from .types_.save_file import (
         SaveFile as SaveFileType,
     )
+    from .types_.shared import *
 
 TEMP_FILE = Path("./_previously_decrypted_file.json")
+TIPS = [
+    "LC_MoveObjectsTip",
+    "LC_StorageTip",
+    "LC_LightningTip",
+    "LCTip_SecureDoors",
+    "LC_EclipseTip",
+    "LCTip_SellScrap",
+    "LCTip_UseManual",
+    "LC_IntroTip1",
+]
+
+__all__ = (
+    "SaveFile",
+    "ConfigFile",
+)
 
 
-class SaveFile:
+class _BaseSaveFile:
+    _inner_data: SaveFileType | ConfigFileType
+    _file_type: str
+    _extra_data: dict[str, Any]
+
+    def __init__(self, path: str | PathLike[str] | Path, /) -> None:
+        if not isinstance(path, Path):
+            path = Path(path)
+
+        if not path.exists():
+            raise ValueError("The path given does not exist")
+
+        self.path: Path = path
+        self._parse_file()
+
+    def validate_contents(self, data: SaveFileType | ConfigFileType, /) -> None:
+        raise NotImplementedError
+
+    def _parse_file(self) -> None:
+        data = decrypt(self.path)
+
+        self.validate_contents(data)
+
+        self._inner_data = data
+
+    def _upsert_value(self, key_name: str, value: Any) -> None:
+        if value is MISSING:
+            return  # If the value is the sentinel type, do nothing and move onto the next
+
+        if isinstance(value, int):
+            _type = "int"
+        elif isinstance(value, list):
+            if value and isinstance(value[0], int):
+                _type = "System.Int32[],mscorlib"
+            elif value and isinstance(value[0], dict):
+                _type = "UnityEngine.Vector3[],UnityEngine.CoreModule"
+            else:
+                raise ValueError("Unexpected or unknown array type passed for `value`")
+        elif isinstance(value, bool):
+            _type = "bool"
+        else:
+            raise ValueError("Unexpected type passed for `value`: %r (%s)", value, type(value))
+
+        try:
+            self._inner_data[key_name]["value"] = value
+        except KeyError:
+            self._inner_data[key_name] = {"__type": _type, "value": value}
+
+    def write(self, *, dump_to_file: bool = True, overwrite: bool = True) -> None:
+        for key, value in self._extra_data.items():
+            self._upsert_value(key, value)
+
+        if dump_to_file:
+            self._dump(overwrite=overwrite)
+
+    def _dump(self, overwrite: bool) -> None:
+        decrypted_result = _to_json(self._inner_data)
+
+        with TEMP_FILE.open("wb") as fp:
+            fp.write(decrypted_result.encode("utf-8"))
+
+        encrypted_result = encrypt(TEMP_FILE)
+
+        p = self.path if overwrite else self.path.with_suffix(".over")
+
+        with p.open("wb") as fp:
+            fp.write(encrypted_result)
+
+
+class SaveFile(_BaseSaveFile):
     # late init variable types
     _inner_data: SaveFileType
     _extra_data: dict[str, Any]
@@ -59,8 +145,8 @@ class SaveFile:
     _steps_taken: int
 
     __slots__ = (
-        "_inner_data",
-        "_extra_data",  # hopefully not for long
+        "_inner_data",  # type: ignore # we narrow the type
+        "_extra_data",
         "_credits",
         "_current_planet_id",
         "_current_quota_progress",
@@ -91,9 +177,7 @@ class SaveFile:
         self.path: Path = path
         self._parse_file()
 
-    def _parse_file(self) -> None:
-        data = decrypt(self.path)
-
+    def validate_contents(self, data: SaveFileType, /) -> None:  # type: ignore # we narrowed the type in the subclass
         if not any(
             [
                 data.get("GroupCredits"),
@@ -106,28 +190,35 @@ class SaveFile:
         ):
             raise ValueError("This doesn't appear to be a valid Lethal Company save file!")
 
-        self._inner_data = data
+    def _parse_file(self) -> None:
+        super()._parse_file()
 
-        self._credits = data["GroupCredits"]["value"]
-        self._current_planet_id = data["CurrentPlanetID"]["value"]
-        self._current_quota_progress = data["QuotaFulfilled"]["value"]
-        self._deadline = data["DeadlineTime"]["value"]
-        self._deaths = data["Stats_Deaths"]["value"]
-        self._elapsed_days = data["Stats_DaysSpent"]["value"]
-        self._quotas_met = data["QuotasPassed"]["value"]
-        self._quota_threshold = data["ProfitQuota"]["value"]
-        self._seed = data["RandomSeed"]["value"]
-        self._steps_taken = data["Stats_StepsTaken"]["value"]
+        self._credits = self._inner_data["GroupCredits"]["value"]
+        self._current_planet_id = self._inner_data["CurrentPlanetID"]["value"]
+        self._current_quota_progress = self._inner_data["QuotaFulfilled"]["value"]
+        self._deadline = self._inner_data["DeadlineTime"]["value"]
+        self._deaths = self._inner_data["Stats_Deaths"]["value"]
+        self._elapsed_days = self._inner_data["Stats_DaysSpent"]["value"]
+        self._quotas_met = self._inner_data["QuotasPassed"]["value"]
+        self._quota_threshold = self._inner_data["ProfitQuota"]["value"]
+        self._seed = self._inner_data["RandomSeed"]["value"]
+        self._steps_taken = self._inner_data["Stats_StepsTaken"]["value"]
 
         # TODO: richer interface here.
-        self._enemy_scans = data.get("EnemyScans", {"__type": "System.Int32[],mscorlib", "value": []})
-        self._ship_scrap = data.get("shipScrapValues", {"__type": "System.Int32[],mscorlib", "value": []})
-        self._ship_grabbable_items = data.get("shipGrabbableItemIDs", {"__type": "System.Int32[],mscorlib", "value": []})
-        self._ship_grabbable_item_positions = data.get(
+        self._enemy_scans = self._inner_data.get("EnemyScans", {"__type": "System.Int32[],mscorlib", "value": []})
+        self._ship_scrap = self._inner_data.get("shipScrapValues", {"__type": "System.Int32[],mscorlib", "value": []})
+        self._ship_grabbable_items = self._inner_data.get(
+            "shipGrabbableItemIDs", {"__type": "System.Int32[],mscorlib", "value": []}
+        )
+        self._ship_grabbable_item_positions = self._inner_data.get(
             "shipGrabbableItemPos", {"__type": "UnityEngine.Vector3[],UnityEngine.CoreModule", "value": []}
         )
-        self._ship_item_save_data = data.get("shipItemSaveData", {"__type": "System.Int32[],mscorlib", "value": []})
-        self._unlocked_ship_objects = data.get("UnlockedShipObjects", {"__type": "System.Int32[],mscorlib", "value": []})
+        self._ship_item_save_data = self._inner_data.get(
+            "shipItemSaveData", {"__type": "System.Int32[],mscorlib", "value": []}
+        )
+        self._unlocked_ship_objects = self._inner_data.get(
+            "UnlockedShipObjects", {"__type": "System.Int32[],mscorlib", "value": []}
+        )
 
         # this key is mostly laziness for now
         # we'll serialise anything in here into the final payload
@@ -412,7 +503,7 @@ class SaveFile:
         """
         return self.unlock_extras(*ExtraUnlock.all())
 
-    def spawn_items(self, *items: tuple[Item, Vector | None]) -> None:
+    def spawn_items(self, *items: tuple[Item, Vector | None], value_min: int = 30, value_max: int = 90) -> None:
         """
         Spawn items within the world or ship.
 
@@ -424,8 +515,10 @@ class SaveFile:
         """
         for item in items:
             vec = item[1] or Vector.default()
+            value = random.randint(value_min, value_max)
             self._ship_grabbable_items["value"].append(item[0].value)
             self._ship_grabbable_item_positions["value"].append(vec.serialise())
+            self._ship_scrap["value"].append(value)
 
     def get_current_items(self) -> list[Item]:
         """
@@ -439,26 +532,6 @@ class SaveFile:
 
     def _generate_seed(self, *, max: int = 99999999, min: int = 10000000) -> int:
         return random.randint(min, max)
-
-    def _upsert_value(self, key_name: str, value: Any) -> None:
-        if isinstance(value, int):
-            _type = "int"
-        elif isinstance(value, list):
-            if value and isinstance(value[0], int):
-                _type = "System.Int32[],mscorlib"
-            elif value and isinstance(value[0], dict):
-                _type = "UnityEngine.Vector3[],UnityEngine.CoreModule"
-            else:
-                raise ValueError("Unexpected or unknown array type passed for `value`")
-        elif isinstance(value, bool):
-            _type = "bool"
-        else:
-            raise ValueError("Unexpected type passed for `value`: %r (%s)", value, type(value))
-
-        try:
-            self._inner_data[key_name]["value"] = value
-        except KeyError:
-            self._inner_data[key_name] = {"__type": _type, "value": value}
 
     def write(self, *, dump_to_file: bool = True, overwrite: bool = True) -> None:
         """
@@ -480,21 +553,171 @@ class SaveFile:
         self._inner_data["shipGrabbableItemPos"] = self._ship_grabbable_item_positions
         self._inner_data["shipItemSaveData"] = self._ship_item_save_data
 
-        for key, value in self._extra_data.items():
-            self._upsert_value(key, value)
+        super().write(dump_to_file=dump_to_file, overwrite=overwrite)
 
-        if dump_to_file:
-            self._dump(overwrite=overwrite)
 
-    def _dump(self, overwrite: bool) -> None:
-        decrypted_result = _to_json(self._inner_data)
+class ConfigFile(_BaseSaveFile):
+    _inner_data: ConfigFileType  # type: ignore # subclass narrows the type
+    _extra_data: dict[str, Any]
 
-        with TEMP_FILE.open("wb") as fp:
-            fp.write(decrypted_result.encode("utf-8"))
+    # late init types
+    arachnophobia_mode: bool
+    y_axis_inverted: bool
+    screen_mode: int
+    fps_mode: int
+    current_mic: str
+    push_to_talk: bool
+    mic_enabled: bool
+    mouse_sensitivity: int
+    master_volume: float
+    gamma: float
+    finished_setup: bool
+    start_online: bool
 
-        encrypted_result = encrypt(TEMP_FILE)
+    _player_xp: IntValue
+    _player_level: IntValue
+    _times_landed: IntValue
+    _is_host_public: BoolValue
+    _host_name: StringValue
+    _played_extrance_0: BoolValue
+    _played_entrance_1: BoolValue
+    _tips: dict[str, BoolValue]
 
-        p = self.path if overwrite else self.path.with_suffix(".over")
+    def validate_contents(self, data: ConfigFileType, /) -> None:  # type: ignore # subclass narrows the type
+        if not any(
+            [data.get("SelectedFile"), data.get("FPSCap"), data.get("Gamma"), data.get("LookSens"), data.get("ScreenMode")]
+        ):  # This is not a General Config File
+            raise ValueError("This doesn't appear to be a valid Lethal Company config file!")
 
-        with p.open("wb") as fp:
-            fp.write(encrypted_result)
+    def _parse_file(self) -> None:
+        super()._parse_file()
+
+        self.arachnophobia_mode = self._inner_data["SpiderSafeMode"]["value"]
+        self.y_axis_inverted = self._inner_data["InvertYAxis"]["value"]
+        self.screen_mode = self._inner_data["ScreenMode"]["value"]
+        self.fps_mode = self._inner_data["FPSCap"]["value"]
+        self.current_mic = self._inner_data["CurrentMic"]["value"]
+        self.push_to_talk = self._inner_data["PushToTalk"]["value"]
+        self.mic_enabled = self._inner_data["MicEnabled"]["value"]
+        self.mouse_sensitivity = self._inner_data["LookSens"]["value"]
+        self.master_volume = self._inner_data["MasterVolume"]["value"]
+        self.gamma = self._inner_data["Gamma"]["value"]
+        self.finished_setup = self._inner_data["PlayerFinishedSetup"]["value"]
+        self.start_online = self._inner_data["StartInOnlineMode"]["value"]
+
+        self._player_xp = self._inner_data.get("PlayerXPNum", MISSING)
+        self._player_level = self._inner_data.get("PlayerLevel", MISSING)
+        self._times_landed = self._inner_data.get("TimesLanded", MISSING)
+        self._is_host_public = self._inner_data.get("HostSettings_Public", MISSING)
+        self._host_name = self._inner_data.get("HostSettings_Name", MISSING)
+        self._played_entrance_0 = self._inner_data.get("PlayedDungeonEntrance0", MISSING)
+        self._played_entrance_1 = self._inner_data.get("PlayedDungeonEntrance1", MISSING)
+        self._tips = {tip: self._inner_data.get(tip, MISSING) for tip in TIPS}
+        self._extra_data = {}
+
+    @property
+    def player_xp(self) -> int:
+        if self._player_xp is not MISSING:
+            return self._player_xp["value"]
+        return 0
+
+    @property
+    def player_level(self) -> int:
+        if self._player_xp is not MISSING:
+            return self._player_level["value"]
+        return 0
+
+    @property
+    def times_landed(self) -> int:
+        if self._times_landed is not MISSING:
+            return self._times_landed["value"]
+        return 0
+
+    @property
+    def is_host_public(self) -> bool:
+        if self._is_host_public is not MISSING:
+            return self._is_host_public["value"]
+        return False
+
+    @property
+    def host_name(self) -> str:
+        if self._host_name is not MISSING:
+            return self._host_name["value"]
+        return "No name set"
+
+    @property
+    def played_entrances(self) -> list[int]:
+        return [val["value"] for val in [self._played_entrance_0, self._played_entrance_1] if val is not MISSING]
+
+    @property
+    def tips(self) -> dict[str, bool]:
+        return {tip: value["value"] for tip, value in self._tips.items() if value is not MISSING}
+
+    def set_player_xp(self, value: int) -> None:
+        if 0 <= value <= 999:
+            self._player_xp = {"__type": "int", "value": value}
+
+    def set_player_level(self, value: int) -> None:
+        if value > 0:
+            self._player_level = {"__type": "int", "value": (value - 1) % 5}
+
+    def set_host_public(self, value: bool) -> None:
+        self._is_host_public = {"__type": "bool", "value": value}
+
+    def set_host_name(self, value: str) -> None:
+        self._host_name = {"__type": "string", "value": value[40:]}
+
+    def set_arachnophobia_mode(self, value: bool) -> None:
+        self.arachnophobia_mode = value
+
+    def set_inverted_y_axis(self, value: bool) -> None:
+        self.y_axis_inverted = value
+
+    def set_screen_mode(self, value: int) -> None:
+        self.screen_mode = value
+
+    def set_fps_mode(self, value: int) -> None:
+        self.fps_mode = value
+
+    def set_push_to_talk(self, value: bool) -> None:
+        self.push_to_talk = value
+
+    def set_mic_enabled(self, value: bool) -> None:
+        self.mic_enabled = value
+
+    def set_mouse_sensitivity(self, value: int) -> None:
+        self.mouse_sensitivity = value
+
+    def set_master_volume(self, value: float) -> None:
+        if 0 <= value <= 1:
+            self.master_volume = value
+
+    def set_gamma(self, value: float) -> None:
+        if 0 <= value <= 1:
+            self.gamma = value
+
+    def write(self, *, dump_to_file: bool = True, overwrite: bool = True) -> None:
+        self._upsert_value("SpiderSafeMode", self.arachnophobia_mode)
+        self._upsert_value("InvertYAxis", self.y_axis_inverted)
+        self._upsert_value("ScreenMode", self.screen_mode)
+        self._upsert_value("FPSCap", self.fps_mode)
+        self._upsert_value("CurrentMic", self.current_mic)
+        self._upsert_value("PushToTalk", self.push_to_talk)
+        self._upsert_value("MicEnabled", self.mic_enabled)
+        self._upsert_value("LookSens", self.mouse_sensitivity)
+        self._upsert_value("MasterVolume", self.master_volume)
+        self._upsert_value("Gamma", self.gamma)
+        self._upsert_value("PlayerFinishedSetup", self.finished_setup)
+        self._upsert_value("StartInOnlineMode", self.start_online)
+        self._upsert_value("PlayerXPNum", self._player_xp)
+        self._upsert_value("PlayerLevel", self._player_level)
+        self._upsert_value("TimesLanded", self._times_landed)
+        self._upsert_value("HostSettings_Public", self._is_host_public)
+        self._upsert_value("HostSettings_Name", self._host_name)
+        self._upsert_value("PlayedDungeonEntrance0", self._played_entrance_0)
+        self._upsert_value("PlayedDungeonEntrance1", self._played_entrance_1)
+
+        for idx, tip in enumerate(self._tips):
+            self._upsert_value(TIPS[idx], tip)
+
+        super().write(dump_to_file=dump_to_file, overwrite=overwrite)

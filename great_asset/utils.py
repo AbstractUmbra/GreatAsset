@@ -28,6 +28,7 @@ from typing import Any
 __all__ = (
     "_to_json",
     "_from_json",
+    "MISSING",
 )
 
 try:
@@ -46,3 +47,22 @@ else:
         return orjson.dumps(obj, option=orjson.OPT_INDENT_2 | orjson.OPT_SORT_KEYS).decode("utf-8")
 
     _from_json = orjson.loads  # type: ignore # this is guarded in an if.
+
+
+class _MissingSentinel:
+    __slots__ = ()
+
+    def __eq__(self, other: object) -> bool:
+        return False
+
+    def __bool__(self) -> bool:
+        return False
+
+    def __hash__(self) -> int:
+        return 0
+
+    def __repr__(self) -> str:
+        return "..."
+
+
+MISSING: Any = _MissingSentinel()
