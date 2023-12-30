@@ -4,21 +4,20 @@
         <br>
     </h1>
     <a href='https://github.com/AbstractUmbra/great_asset/actions/workflows/build.yaml'>
-        <img src='https://github.com/AbstractUmbra/great_asset/actions/workflows/build.yaml/badge.svg' alt='Build status' />
+        <img src='https://github.com/AbstractUmbra/great_asset/actions/workflows/build.yaml/badge.svg' alt='Build status'/>
     </a>
     <a href='https://github.com/AbstractUmbra/great_asset/workflows/coverage_and_lint.yaml'>
-        <img src='https://github.com/AbstractUmbra/great_asset/actions/workflows/coverage_and_lint.yaml/badge.svg' alt='Linting and Typechecking' />
+        <img src='https://github.com/AbstractUmbra/great_asset/actions/workflows/coverage_and_lint.yaml/badge.svg' alt='Linting and Typechecking'/>
     </a>
 </div>
 <div align="center">
     <a href='https://great-asset.readthedocs.io/en/latest/?badge=latest'>
-        <img src='https://readthedocs.org/projects/great_asset/badge/?version=latest' alt='Documentation Status' />
+        <img src='https://readthedocs.org/projects/great_asset/badge/?version=latest' alt='Documentation Status'/>
     </a>
     <a href="https://discord.gg/aYGYJxwqe5">
         <img src='https://img.shields.io/discord/705500489248145459?color=blue&label=Discord&logo=Discord%20Server&logoColor=green' alt='Discord Server'>
     </a>
 </div>
-<h1></h1>
 <br>
 
 Welcome, great assets to The Company!
