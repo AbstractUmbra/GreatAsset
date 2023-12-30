@@ -396,9 +396,9 @@ class SaveFile(_BaseSaveFile):
         Parameters
         -----------
         new_deadline: :class:`int`
-            New deadline/time remaining in days*24*60 minutes.
+            New deadline/time remaining in days.
         """
-        self._upsert_value("DeadlineTime", new_deadline)
+        self._upsert_value("DeadlineTime", new_deadline * 1080)
 
     def update_profit_quota(self, new_profit_quota: int, /) -> None:
         """
