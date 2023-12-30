@@ -378,7 +378,7 @@ class SaveFile(_BaseSaveFile):
         """
         self._upsert_value("Stats_Deaths", new_deaths)
 
-    def update_elapsed_dats(self, new_elapsed_days: int, /) -> None:
+    def update_elapsed_days(self, new_elapsed_days: int, /) -> None:
         """
         Update the elapsed days count within the save file.
 
