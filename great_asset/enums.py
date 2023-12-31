@@ -39,13 +39,18 @@ class ShipUnlock(Enum):
     television = 6, "Television"
     tv = 6, "Television"
     # = 7
+    bunkbeds = 8, "Bunkbeds"  # maybe?
     shower = 10, "Shower"
+    file_cabinet = 11, "File Cabinet"  # maybe?
     table = 13, "Table"
-    # = 11
+    romantic_table = 14, "Romantic table"
     # = 15
     loud_horn = 18, "Loud horn"
     inverse_teleporter = 19, "Inverse Teleporter"
+    jack_o_lantern = 20, "JackOLantern"
     goldfish = 22, "Goldfish"
+    plushie_pajama_man = 23, "Plushie pajama man"
+    plushie_pyjama_man = 23, "Plushie pajama man"
 
     def __init__(self, value: int, serialised_name: str) -> None:
         self._serialised_value: int = value
@@ -65,6 +70,8 @@ class ShipUnlock(Enum):
 
 
 class ExtraUnlock(Enum):
+    green_suit = 1
+    hazard_suit = 2
     pyjama_suit = 3
 
     @staticmethod
