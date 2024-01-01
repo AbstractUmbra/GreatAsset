@@ -1,4 +1,4 @@
-1.1.0
+1.1.1
 
 # great_asset Changelog
 
@@ -15,8 +15,6 @@
 
 
 ### Notes
-I'll add some example usage soon.
-I'll add a way to edit the other files within the save folder like general config.
-The enums still need to be fleshed out and documented, which is slightly tedious.
+The enums still need to be fleshed out further.
 
 ### Noted Contributors
