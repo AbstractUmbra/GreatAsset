@@ -33,8 +33,8 @@ __all__ = (
 
 
 class ShipUnlock(Enum):
-    signal_translator = 0, "Signal transmitter"
-    signal_transmitter = 0, "Signal transmitter"
+    signal_translator = 0, "Signal translator"
+    signal_transmitter = 0, "Signal translator"
     teleporter = 5, "Teleporter"
     television = 6, "Television"
     tv = 6, "Television"
