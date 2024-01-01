@@ -59,7 +59,6 @@ jobs:
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
       - name: "Install Python deps @ ${{ matrix.python-version }}"
-        if: ${{ steps.cached-pip-wheels.outputs.cache-hit != 'true' }}
         id: install-deps
         run: |
           poetry install --no-interaction

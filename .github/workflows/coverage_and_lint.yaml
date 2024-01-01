@@ -47,7 +47,6 @@ jobs:
           cache: "poetry"
 
       - name: "Install Python deps @ ${{ matrix.python-version }}"
-        if: ${{ steps.setup-python.outputs.cache-hit != 'true' }}
         id: install-deps
         run: |
           poetry install --without=dev --no-interaction
