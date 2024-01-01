@@ -3,14 +3,16 @@
 # great_asset Changelog
 
 ## Added
-- `great_asset.ConfigFile` to support the `LCGeneralSaveFile` that is created on launch, to allow control of the finer details of each player/setup configuration. (87523d5399d2acc2570d967731e5b485bdafdda9)
+- More tests around the library. (7b4f562bcfe3755095f02aca18dd585306200176)
+- Update the in-memory `SaveFile` as well as the serialisation object. (9e19214c76bf600080a57ed405c8f1f2ae177fab)
+- More `ShipUnlock` ids and one `ExtraUnlock` id. (bfde042c92e5990a77c6451eb2c03fcba8d12a78)
 
 ## Fixed
-- Update the GitHub Action to perform the project build on PRs too, to allow contributors to test PRs. (903eefddd795a25e89cfdaf60ae7ed57f049369c)
-
+- Update usage and setting of `SaveFile.deadline` and added `SaveFile.raw_deadline`. (4b9d9142f9ec77420df3f45efe18db4400dcb219 and c4f263886c5d299d4a1466498ad59a02aa1de149)
+  - The save file uses the minute value per day as the setting. E.g. 1 day is 1080 serialised.
+- Fixed a typo in `SaveFile.update_elapsed_days`. (1c3fcf59e79730c42670019ffe61b0986e7b568d)
 ## Changed
-- Moved the primitive inner types of the deserialised files to `types_.shared` instead of `types_.save_file` due to their shared usage. (87523d5399d2acc2570d967731e5b485bdafdda9)
-- Added `poethepoet` dev dependency for pre-push CI. (be84c8529fc09121c9a80bd54602794f33d82c11)
+
 
 ### Notes
 I'll add some example usage soon.
@@ -18,4 +20,3 @@ I'll add a way to edit the other files within the save folder like general confi
 The enums still need to be fleshed out and documented, which is slightly tedious.
 
 ### Noted Contributors
-@sudosnok for their work in deserialising the config file and implementing the base class and config file class.
