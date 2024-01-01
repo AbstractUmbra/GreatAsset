@@ -136,7 +136,7 @@ class SaveFile(_BaseSaveFile):
 
     _credits: int
     _current_planet_id: int
-    _deadline: int
+    _deadline: float
     _deaths: int
     _elapsed_days: int
     _quotas_met: int
@@ -283,11 +283,27 @@ class SaveFile(_BaseSaveFile):
     @property
     def deadline(self) -> int:
         """
-        Get the current deadline in time within the save file.
+        Get the current deadline in time as days within the save file.
+
+
+        .. warning:
+            I round this value using :meth:`round` so it may not be fully accurate.
+            If you need the raw value, try :property:`raw_deadline`.
 
         Returns
         --------
         :class:`int`
+        """
+        return round(self._deadline / 1080)
+
+    @property
+    def raw_deadline(self) -> float:
+        """
+        Get the current deadline in time's raw value within the save file.
+
+        Returns
+        --------
+        :class:`float`
         """
         return self._deadline
 
