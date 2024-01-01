@@ -23,13 +23,20 @@ DEALINGS IN THE SOFTWARE.
 """
 
 import json
-from typing import Any
+import os
+import pathlib
+import platform
+from typing import Any, Literal
 
 __all__ = (
     "_to_json",
     "_from_json",
     "MISSING",
+    "SaveValue",
+    "resolve_save_path",
 )
+
+SaveValue = Literal[1, 2, 3, "1", "2", "3"]
 
 try:
     import orjson
@@ -66,3 +73,18 @@ class _MissingSentinel:
 
 
 MISSING: Any = _MissingSentinel()
+
+
+def resolve_save_path(save_number: SaveValue, /) -> pathlib.Path:
+    if platform.system() != "Windows":
+        raise NotImplementedError("Currently we don't support non-Windows yet.")
+
+    user_profile = os.getenv("USERPROFILE")
+    if not user_profile:
+        raise RuntimeError("This shouldn't happen or your windows profile is messed up.")
+
+    save_data_path = pathlib.Path(user_profile) / "AppData" / "LocalLow" / "ZeekerssRBLX" / "Lethal Company"
+
+    save_file_name = f"LCSaveFile{save_number}"
+
+    return save_data_path / save_file_name
