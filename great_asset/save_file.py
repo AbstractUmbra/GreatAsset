@@ -360,6 +360,7 @@ class SaveFile(_BaseSaveFile):
             The new credits value.
         """
         self._upsert_value("GroupCredits", new_credits)
+        self._credits = new_credits
 
     def update_current_moon(self, moon: Moon, /) -> None:
         """
@@ -371,6 +372,7 @@ class SaveFile(_BaseSaveFile):
             The planet to update to.
         """
         self._upsert_value("CurrentPlanetID", moon.value)
+        self._current_planet_id = moon.value
 
     def update_steps_taken(self, new_steps: int, /) -> None:
         """
@@ -382,6 +384,7 @@ class SaveFile(_BaseSaveFile):
             The amount of steps to have taken.
         """
         self._upsert_value("Stats_StepsTaken", new_steps)
+        self._steps_taken = new_steps
 
     def update_deaths(self, new_deaths: int, /) -> None:
         """
@@ -393,6 +396,7 @@ class SaveFile(_BaseSaveFile):
             The new value for total deaths.
         """
         self._upsert_value("Stats_Deaths", new_deaths)
+        self._deaths = new_deaths
 
     def update_elapsed_days(self, new_elapsed_days: int, /) -> None:
         """
@@ -404,6 +408,7 @@ class SaveFile(_BaseSaveFile):
             The elapsed days value.
         """
         self._upsert_value("Stats_DaysSpent", new_elapsed_days)
+        self._elapsed_days = new_elapsed_days
 
     def update_deadline(self, new_deadline: int | float, /) -> None:
         """
@@ -430,6 +435,7 @@ class SaveFile(_BaseSaveFile):
             The profit quota to set.
         """
         self._upsert_value("ProfitQuota", new_profit_quota)
+        self._quota_threshold = new_profit_quota
 
     def update_quotas_met(self, new_quotas_met: int, /) -> None:
         """
@@ -441,6 +447,7 @@ class SaveFile(_BaseSaveFile):
             The quotas met to set.
         """
         self._upsert_value("QuotasPassed", new_quotas_met)
+        self._quotas_met = new_quotas_met
 
     def update_current_quota_progress(self, new_quota_progress: int, /) -> None:
         """
@@ -452,6 +459,7 @@ class SaveFile(_BaseSaveFile):
             The quota progress to set.
         """
         self._upsert_value("QuotaFulfilled", new_quota_progress)
+        self._current_quota_progress = new_quota_progress
 
     def update_current_seed(self, new_seed: int | None = None, /) -> None:
         """
@@ -465,6 +473,7 @@ class SaveFile(_BaseSaveFile):
         seed = new_seed or self._generate_seed()
 
         self._upsert_value("RandomSeed", seed)
+        self._seed = seed
 
     def unlock_ship_upgrades(self, *items: ShipUnlock) -> None:
         """
