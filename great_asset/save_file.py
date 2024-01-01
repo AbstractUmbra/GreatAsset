@@ -30,7 +30,7 @@ from typing import TYPE_CHECKING, Any
 
 from .crypt import decrypt, encrypt
 from .enums import ExtraUnlock, Item, Moon, ShipUnlock
-from .utils import MISSING, _to_json  # type: ignore # we'll allow this private usage for now
+from .utils import MISSING, SaveValue, _to_json, resolve_save_path  # type: ignore[reportPrivateUsage] we allow this here.
 from .vector import Vector
 
 if TYPE_CHECKING:
@@ -176,6 +176,12 @@ class SaveFile(_BaseSaveFile):
 
         self.path: Path = path
         self._parse_file()
+
+    @classmethod
+    def resolve_from_file(cls, save_file_number: SaveValue, /) -> SaveFile:
+        path = resolve_save_path(save_file_number)
+
+        return cls(path)
 
     def validate_contents(self, data: SaveFileType, /) -> None:  # type: ignore # we narrowed the type in the subclass
         if not any(
