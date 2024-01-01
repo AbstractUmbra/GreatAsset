@@ -405,16 +405,20 @@ class SaveFile(_BaseSaveFile):
         """
         self._upsert_value("Stats_DaysSpent", new_elapsed_days)
 
-    def update_deadline(self, new_deadline: int, /) -> None:
+    def update_deadline(self, new_deadline: int | float, /) -> None:
         """
         Update the deadline time within the save file.
 
         Parameters
         -----------
-        new_deadline: :class:`int`
-            New deadline/time remaining in days.
+        new_deadline: :class:`int` | :class:`float`
+            New deadline/time remaining in days or minutes.
         """
-        self._upsert_value("DeadlineTime", new_deadline * 1080)
+        if not isinstance(new_deadline, float):
+            new_deadline = new_deadline * 1080
+
+        self._upsert_value("DeadlineTime", new_deadline)
+        self._deadline = new_deadline
 
     def update_profit_quota(self, new_profit_quota: int, /) -> None:
         """
