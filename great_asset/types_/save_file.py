@@ -118,4 +118,5 @@ SaveFile = TypedDict(
         "shipItemSaveData": ArrayIntValue,
         "shipScrapValues": ArrayIntValue,
     },
+    total=False,
 )
