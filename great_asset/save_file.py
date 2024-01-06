@@ -546,7 +546,7 @@ class SaveFile(_BaseSaveFile):
         *entries: :class:`~great_asset.BestiaryEntry`
             The entries to unlock.
         """
-        self._enemy_scans = list({e.value for e in entries})
+        self._enemy_scans["value"] = list({e.value for e in entries})
 
     def unlock_all_bestiary_entries(self) -> None:
         """
@@ -599,6 +599,7 @@ class SaveFile(_BaseSaveFile):
         """
         # manually handle the more complex types:
         self._upsert_value("UnlockedShipObjects", list(set(self._unlocked_ship_objects["value"])))
+        self._inner_data["EnemyScans"] = self._enemy_scans
         self._inner_data["shipScrapValues"] = self._ship_scrap
         self._inner_data["shipGrabbableItemIDs"] = self._ship_grabbable_items
         self._inner_data["shipGrabbableItemPos"] = self._ship_grabbable_item_positions
