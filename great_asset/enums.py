@@ -29,6 +29,7 @@ __all__ = (
     "ExtraUnlock",
     "BestiaryEntry",
     "Item",
+    "Scrap",
     "Moon",
 )
 
@@ -120,7 +121,6 @@ class Item(Enum):
     jetpack = 4
     key = 5
     lockpick = 6
-    apparatus = 7
     handheld_monitor = 8  # not yet implemented
     pro_flashlight = 9
     shovel = 10
@@ -129,6 +129,10 @@ class Item(Enum):
     tzp_inhalant = 13
     walkie_talkie = 14
     stun_gun = 15
+
+
+class Scrap(Enum):
+    apparatus = 7
     magic_7_ball = 16
     airhorn = 17
     bell = 18

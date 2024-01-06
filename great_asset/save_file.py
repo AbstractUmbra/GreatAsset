@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from .crypt import decrypt, encrypt
-from .enums import BestiaryEntry, ExtraUnlock, Item, Moon, ShipUnlock
+from .enums import BestiaryEntry, ExtraUnlock, Item, Moon, Scrap, ShipUnlock
 from .utils import MISSING, SaveValue, _to_json, resolve_save_path  # type: ignore[reportPrivateUsage] we allow this here.
 from .vector import Vector
 
@@ -554,22 +554,24 @@ class SaveFile(_BaseSaveFile):
         """
         return self.unlock_bestiary_entries(*BestiaryEntry.all())
 
-    def spawn_items(self, *items: tuple[Item, Vector | None], value_min: int = 30, value_max: int = 90) -> None:
+    def spawn_items(self, *items: tuple[Item | Scrap, Vector | None], value_min: int = 30, value_max: int = 90) -> None:
         """
         Spawn items within the world or ship.
 
         Parameters
         -----------
-        *items: tuple[:class:`~great_asset.Item`, :class:`~great_asset.Vector` | :class:`None`]
-            A series of tuples with the Item and it's position to spawn in.
+        *items: tuple[:class:`~great_asset.Item` | :class:`~great_asset.Scrap`, :class:`~great_asset.Vector` | :class:`None`]
+            A series of tuples with the item and it's position to spawn in.
             Using ``None`` as the second value will spawn at a default area near the door of the ship internally.
         """
-        for item in items:
-            vec = item[1] or Vector.default()
-            value = random.randint(value_min, value_max)
-            self._ship_grabbable_items["value"].append(item[0].value)
+        for item, position in items:
+            vec = position or Vector.default()
+            if isinstance(item, Scrap):
+                value = random.randint(value_min, value_max)
+                self._ship_scrap["value"].append(value)
+
+            self._ship_grabbable_items["value"].append(item.value)
             self._ship_grabbable_item_positions["value"].append(vec.serialise())
-            self._ship_scrap["value"].append(value)
 
     def get_current_items(self) -> list[Item]:
         """
