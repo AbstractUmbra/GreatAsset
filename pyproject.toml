@@ -28,7 +28,7 @@ packages = [
 ]
 
 [tool.poetry.urls]
-"Issue Tracker" = "https://github.com/AbstractUmbra/great_asset/issues"
+"Issue Tracker" = "https://github.com/AbstractUmbra/GreatAsset/issues"
 "Discord" = "https://discord.gg/aYGYJxwqe5"
 
 [tool.poetry.dependencies]
