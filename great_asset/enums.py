@@ -35,21 +35,26 @@ __all__ = (
 
 
 class ShipUnlock(Enum):
-    signal_translator = 0, "Signal translator"
-    signal_transmitter = 0, "Signal translator"
+    cozy_lights = 4, "Cozy lights"
     teleporter = 5, "Teleporter"
     television = 6, "Television"
     tv = 6, "Television"
-    # = 7
-    bunkbeds = 8, "Bunkbeds"  # maybe?
+    cupboard = 7, "Cupboard"
+    file_cabinet = 8, "File Cabinet"
+    toilet = 9, "Toilet"
     shower = 10, "Shower"
-    file_cabinet = 11, "File Cabinet"  # maybe?
+    light_switch = 11, "Light switch"
+    record_player = 12, "Record player"
     table = 13, "Table"
     romantic_table = 14, "Romantic table"
-    # = 15
+    bunkbeds = 15, "Bunkbeds"
+    terminal = 16, "Terminal"
+    signal_translator = 17, "Signal translator"
+    signal_transmitter = 17, "Signal translator"
     loud_horn = 18, "Loud horn"
     inverse_teleporter = 19, "Inverse Teleporter"
     jack_o_lantern = 20, "JackOLantern"
+    welcome_mat = 21, "Welcome mat"
     goldfish = 22, "Goldfish"
     plushie_pajama_man = 23, "Plushie pajama man"
     plushie_pyjama_man = 23, "Plushie pajama man"
@@ -72,6 +77,7 @@ class ShipUnlock(Enum):
 
 
 class ExtraUnlock(Enum):
+    orange_suit = 0
     green_suit = 1
     hazard_suit = 2
     pyjama_suit = 3
@@ -117,6 +123,7 @@ class BestiaryEntry(Enum):
 class Item(Enum):
     binoculars = 0  # not yet implemented
     boom_box = 1
+    cardboard_box = 2
     flashlight = 3
     jetpack = 4
     key = 5
@@ -163,6 +170,7 @@ class Scrap(Enum):
     old_phone = 43
     jar_of_pickles = 44
     pill_bottle = 45
+    remote = 46
     ring = 47
     robot_toy = 48
     rubber_ducky = 49
