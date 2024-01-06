@@ -1,6 +1,13 @@
 from __future__ import annotations
 
+from random import choice, uniform
 from typing import TYPE_CHECKING
+
+TOP_SHELF = 2.5
+UPPER_SHELF = 2.0
+LOWER_SHELF = 1.5
+BOTTOM_SHELF = 1.0
+SHELVES = [TOP_SHELF, UPPER_SHELF, LOWER_SHELF, BOTTOM_SHELF]
 
 if TYPE_CHECKING:
     from .types_.save_file import InnerVectorValue
@@ -19,7 +26,11 @@ class Vector:
 
     @classmethod
     def default(cls) -> Vector:
-        return cls(10, 2, -11)
+        return cls(-3.5, 2.5, -12.5)
+
+    @classmethod
+    def on_cupboard(cls) -> Vector:
+        return cls(uniform(2.5, 3.5), choice(SHELVES), uniform(-12, -12.5))
 
     @classmethod
     def from_dict(cls, payload: InnerVectorValue) -> Vector:
