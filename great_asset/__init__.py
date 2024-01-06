@@ -26,7 +26,7 @@ __title__ = "great_asset"
 __author__ = "AbstractUmbra"
 __license__ = "MIT"
 __copyright__ = "Copyright 2023-present AbstractUmbra"
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 
 CRYPTO_PASSWORD = "lcslime14a5"
 
