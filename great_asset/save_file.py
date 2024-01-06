@@ -30,6 +30,7 @@ from typing import TYPE_CHECKING, Any
 
 from .crypt import decrypt, encrypt
 from .enums import BestiaryEntry, ExtraUnlock, Item, Moon, Scrap, ShipUnlock
+from .item import GrabbableScrap
 from .utils import MISSING, SaveValue, _to_json, resolve_save_path  # type: ignore[reportPrivateUsage] we allow this here.
 from .vector import Vector
 
@@ -145,7 +146,7 @@ class SaveFile(_BaseSaveFile):
     _steps_taken: int
 
     __slots__ = (
-        "_inner_data",  # type: ignore # we narrow the type
+        "_inner_data",  # type: ignore # we're handling this per class
         "_extra_data",
         "_credits",
         "_current_planet_id",
@@ -159,11 +160,11 @@ class SaveFile(_BaseSaveFile):
         "_steps_taken",
         # these values need a richer interface
         "_enemy_scans",
-        "_ship_scrap",
-        "_ship_grabbable_items",
-        "_ship_grabbable_item_positions",
         "_ship_item_save_data",
         "_unlocked_ship_objects",
+        "__ship_grabbable_items",
+        "__ship_grabbable_item_positions",
+        "__ship_scrap",
         "path",
     )
 
@@ -212,13 +213,6 @@ class SaveFile(_BaseSaveFile):
 
         # TODO: richer interface here.
         self._enemy_scans = self._inner_data.get("EnemyScans", {"__type": "System.Int32[],mscorlib", "value": []})
-        self._ship_scrap = self._inner_data.get("shipScrapValues", {"__type": "System.Int32[],mscorlib", "value": []})
-        self._ship_grabbable_items = self._inner_data.get(
-            "shipGrabbableItemIDs", {"__type": "System.Int32[],mscorlib", "value": []}
-        )
-        self._ship_grabbable_item_positions = self._inner_data.get(
-            "shipGrabbableItemPos", {"__type": "UnityEngine.Vector3[],UnityEngine.CoreModule", "value": []}
-        )
         self._ship_item_save_data = self._inner_data.get(
             "shipItemSaveData", {"__type": "System.Int32[],mscorlib", "value": []}
         )
@@ -226,10 +220,34 @@ class SaveFile(_BaseSaveFile):
             "UnlockedShipObjects", {"__type": "System.Int32[],mscorlib", "value": []}
         )
 
+        self.__ship_grabbable_items = self._inner_data.get(
+            "shipGrabbableItemIDs", {"__type": "System.Int32[],mscorlib", "value": []}
+        )
+        self.__ship_grabbable_item_positions = self._inner_data.get(
+            "shipGrabbableItemPos", {"__type": "UnityEngine.Vector3[],UnityEngine.CoreModule", "value": []}
+        )
+        self.__ship_scrap = self._inner_data.get("shipScrapValues", {"__type": "System.Int32[],mscorlib", "value": []})
+        self._parse_scrap_mapping()
+
         # this key is mostly laziness for now
         # we'll serialise anything in here into the final payload
         # for now this will just be how we add the UnlockedStored_X keys
         self._extra_data = {}
+
+    def _parse_scrap_mapping(self) -> None:
+        # shipGrabbableItems contains all touchable items on the ship, including tools which have no value
+        # shipScrapValues are an array of values assigned to each piece of scrap
+        # it works because GrabbableItems[1]: ScrapValues[1], each index aligns and that's how the values are assigned, like a zip
+        # once the scrapvalues runs out of elements, the rest of the items are treated as no value, like tools
+        self._scrap: list[GrabbableScrap] = []
+
+        for item, value, pos in zip(
+            self.__ship_grabbable_items["value"], self.__ship_scrap["value"], self.__ship_grabbable_item_positions["value"]
+        ):
+            self._scrap.append(GrabbableScrap(item, value, pos))
+
+        self.__ship_grabbable_items["value"] = self.__ship_grabbable_items["value"][len(self._scrap) :]
+        self.__ship_grabbable_item_positions["value"] = self.__ship_grabbable_item_positions["value"][len(self._scrap) :]
 
     @property
     def credits(self) -> int:
@@ -568,10 +586,11 @@ class SaveFile(_BaseSaveFile):
             vec = position or Vector.default()
             if isinstance(item, Scrap):
                 value = random.randint(value_min, value_max)
-                self._ship_scrap["value"].append(value)
+                self._scrap.append(GrabbableScrap(item.value, value, vec.serialise()))
+                continue
 
-            self._ship_grabbable_items["value"].append(item.value)
-            self._ship_grabbable_item_positions["value"].append(vec.serialise())
+            self.__ship_grabbable_items["value"].append(item.value)
+            self.__ship_grabbable_item_positions["value"].append(vec.serialise())
 
     def get_current_items(self) -> list[Item]:
         """
@@ -581,7 +600,17 @@ class SaveFile(_BaseSaveFile):
         --------
         list[:class:`~great_asset.Item`]
         """
-        return [Item(item) for item in self._ship_grabbable_items["value"]]
+        return [Item(item) for item in self.__ship_grabbable_items["value"]]
+
+    def get_current_scrap(self) -> list[Scrap]:
+        """
+        Get the current scrap that exist within the ship in the save file.
+
+        Returns
+        --------
+        list[:class:`~great_asset.Scrap`]
+        """
+        return [Scrap(item.id) for item in self._scrap]
 
     def _generate_seed(self, *, max: int = 99999999, min: int = 10000000) -> int:
         return random.randint(min, max)
@@ -602,10 +631,16 @@ class SaveFile(_BaseSaveFile):
         # manually handle the more complex types:
         self._upsert_value("UnlockedShipObjects", list(set(self._unlocked_ship_objects["value"])))
         self._inner_data["EnemyScans"] = self._enemy_scans
-        self._inner_data["shipScrapValues"] = self._ship_scrap
-        self._inner_data["shipGrabbableItemIDs"] = self._ship_grabbable_items
-        self._inner_data["shipGrabbableItemPos"] = self._ship_grabbable_item_positions
         self._inner_data["shipItemSaveData"] = self._ship_item_save_data
+
+        for item in self._scrap:
+            self.__ship_scrap["value"].insert(0, item.value)
+            self.__ship_grabbable_items["value"].insert(0, item.id)
+            self.__ship_grabbable_item_positions["value"].insert(0, item.pos)
+
+        self._inner_data["shipScrapValues"] = self.__ship_scrap
+        self._inner_data["shipGrabbableItemIDs"] = self.__ship_grabbable_items
+        self._inner_data["shipGrabbableItemPos"] = self.__ship_grabbable_item_positions
 
         super().write(dump_to_file=dump_to_file, overwrite=overwrite)
 

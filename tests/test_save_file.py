@@ -9,7 +9,7 @@ from typing import Literal
 
 import pytest
 
-from great_asset import Moon, SaveFile, ShipUnlock
+from great_asset import Moon, SaveFile, Scrap, ShipUnlock
 
 BASE_PATH = Path(__file__).parent
 
@@ -169,3 +169,19 @@ class TestSaveFile:
 
         assert item.serialised_value in save._inner_data["UnlockedShipObjects"]["value"]
         assert save._inner_data[serialised_name]["value"] is True
+
+    @pytest.mark.parametrize("scrap", [(Scrap.bee_hive), (Scrap.cash_register), (Scrap.chemical_jug)])
+    def test_scrap_positions_in_json(self, scrap: Scrap) -> None:
+        save = make_save(2)
+
+        # spawn something to check we have it exactly as desired.
+        save.spawn_items((scrap, None), value_min=127, value_max=127)
+
+        assert save._scrap[-1].id == scrap.value
+
+        save.write(dump_to_file=False, overwrite=False)
+
+        # get the index for the item
+        idx = save._inner_data["shipGrabbableItemIDs"]["value"].index(scrap.value)  # type: ignore[reportTypedDictNotRequiredAccess] # we know it's here.
+
+        assert save._inner_data["shipScrapValues"]["value"][idx] == 127  # type: ignore[reportTypedDictNotRequiredAccess] # we know it's here.
