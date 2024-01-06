@@ -97,7 +97,7 @@ class BestiaryEntry(Enum):
     sand_worm = 9
     jester = 10
     jack_in_the_box = 10
-    spore_lizard = 11  # not implemented?
+    spore_lizard = 11
     bunker_spider = 12
     spider = 12
     manticoil = 13
