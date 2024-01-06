@@ -27,6 +27,7 @@ from enum import Enum
 __all__ = (
     "ShipUnlock",
     "ExtraUnlock",
+    "BestiaryEntry",
     "Item",
     "Moon",
 )
@@ -77,6 +78,39 @@ class ExtraUnlock(Enum):
     @staticmethod
     def all() -> list["ExtraUnlock"]:
         return list(ExtraUnlock)
+
+
+class BestiaryEntry(Enum):
+    snare_flea = 0
+    bracken = 1
+    thumper = 2
+    eyeless_dog = 3
+    hoarding_bug = 4
+    hygroderes = 5
+    slime = 5
+    forest_keepers = 6
+    giants = 6
+    coil_head = 7
+    spring_head = 7
+    lasso_man = 8  # not implemented?
+    earth_leviathan = 9
+    sand_worm = 9
+    jester = 10
+    jack_in_the_box = 10
+    spore_lizard = 11  # not implemented?
+    bunker_spider = 12
+    spider = 12
+    manticoil = 13
+    circuit_bees = 14
+    bees = 14
+    roaming_locusts = 15
+    locusts = 15
+    baboon_hawk = 16
+    nutcracker = 17
+
+    @staticmethod
+    def all() -> list["BestiaryEntry"]:
+        return list(BestiaryEntry)
 
 
 class Item(Enum):

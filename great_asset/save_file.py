@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from .crypt import decrypt, encrypt
-from .enums import ExtraUnlock, Item, Moon, ShipUnlock
+from .enums import BestiaryEntry, ExtraUnlock, Item, Moon, ShipUnlock
 from .utils import MISSING, SaveValue, _to_json, resolve_save_path  # type: ignore[reportPrivateUsage] we allow this here.
 from .vector import Vector
 
@@ -529,14 +529,30 @@ class SaveFile(_BaseSaveFile):
         *items: :class:`~great_asset.ExtraUnlock`
             The items to unlock.
         """
-        for item in items:
-            self._unlocked_ship_objects["value"].append(item.value)
+        self._unlocked_ship_objects["value"] = list({i.value for i in items})
 
     def unlock_all_ship_extras(self) -> None:
         """
         Unlock all possible ship extras.
         """
         return self.unlock_extras(*ExtraUnlock.all())
+
+    def unlock_bestiary_entries(self, *entries: BestiaryEntry) -> None:
+        """
+        Unlock bestiary entries on the ship terminal.
+
+        Parameters
+        -----------
+        *entries: :class:`~great_asset.BestiaryEntry`
+            The entries to unlock.
+        """
+        self._enemy_scans = list({e.value for e in entries})
+
+    def unlock_all_bestiary_entries(self) -> None:
+        """
+        Unlock all possible bestiary entries.
+        """
+        return self.unlock_bestiary_entries(*BestiaryEntry.all())
 
     def spawn_items(self, *items: tuple[Item, Vector | None], value_min: int = 30, value_max: int = 90) -> None:
         """
