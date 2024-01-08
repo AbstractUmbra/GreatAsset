@@ -53,7 +53,7 @@ class Vector:
 
     @classmethod
     def in_cupboard(cls) -> Vector:
-        return cls(uniform(-2.5, -3.5), choice(SHELVES), uniform(-12, -12.5))
+        return cls(uniform(-3.0, -3.5), choice(SHELVES), uniform(-12, -12.5))
 
     @classmethod
     def from_dict(cls, payload: InnerVectorValue) -> Vector:
