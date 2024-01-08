@@ -583,7 +583,7 @@ class SaveFile(_BaseSaveFile):
             Using ``None`` as the second value will spawn at a default area near the door of the ship internally.
         """
         for item, position in items:
-            vec = position or Vector.default()
+            vec = position or Vector.in_cupboard()
             if isinstance(item, Scrap):
                 value = random.randint(value_min, value_max)
                 self._scrap.append(GrabbableScrap(item.value, value, vec.serialise()))

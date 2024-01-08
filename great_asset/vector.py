@@ -52,7 +52,7 @@ class Vector:
         return cls(-3.5, 2.5, -12.5)
 
     @classmethod
-    def on_cupboard(cls) -> Vector:
+    def in_cupboard(cls) -> Vector:
         return cls(uniform(2.5, 3.5), choice(SHELVES), uniform(-12, -12.5))
 
     @classmethod
