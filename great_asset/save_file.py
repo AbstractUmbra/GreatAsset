@@ -94,8 +94,9 @@ class _BaseSaveFile(Generic[SaveT]):
         self._parse_file()
 
     @classmethod
-    def from_data(cls, *, data: bytes, path: Path | None = None) -> Self:
-        path = path or Path("./LCSaveFile1")
+    def from_data(cls, *, data: bytes, path: Path | None = None, save_number: SaveValue | None = None) -> Self:
+        _number = save_number or ""
+        path = path or Path(f"./LCSaveFile{_number}")
 
         file = cls.__new__(cls)
         file._skip_parsing = True
