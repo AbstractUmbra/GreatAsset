@@ -217,16 +217,6 @@ class SaveFile(_BaseSaveFile["SaveFileType"]):
         "path",
     )
 
-    def __init__(self, path: str | PathLike[str] | Path, /) -> None:
-        if not isinstance(path, Path):
-            path = Path(path)
-
-        if not path.exists():
-            raise ValueError("The path given does not exist")
-
-        self.path: Path = path
-        self._parse_file()
-
     @classmethod
     def resolve_from_file(cls, save_file_number: SaveValue, /) -> SaveFile:
         path = resolve_save_path(save_file_number)
