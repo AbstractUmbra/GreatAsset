@@ -38,13 +38,14 @@ if TYPE_CHECKING:
     from os import PathLike
     from types import TracebackType
 
+    from .types_.challenge_file import ChallengeFile as ChallengeFileType
     from .types_.config_file import ConfigFile as ConfigFileType
     from .types_.save_file import (
         SaveFile as SaveFileType,
     )
     from .types_.shared import *
 
-SaveT = TypeVar("SaveT", "SaveFileType", "ConfigFileType")
+SaveT = TypeVar("SaveT", "SaveFileType", "ConfigFileType", "ChallengeFileType")
 
 TEMP_FILE = Path("./_previously_decrypted_file.json")
 TIPS = [
@@ -121,7 +122,7 @@ class _BaseSaveFile(Generic[SaveT]):
         if not self._written and not exc_type:
             self.write()
 
-    def validate_contents(self, data: SaveFileType | ConfigFileType, /) -> None:
+    def validate_contents(self, data: SaveT, /) -> None:
         raise NotImplementedError
 
     def _parse_file(self) -> None:
@@ -851,3 +852,63 @@ class ConfigFile(_BaseSaveFile["ConfigFileType"]):
             self._upsert_value(TIPS[idx], tip)
 
         super().write(dump_to_file=dump_to_file, overwrite=overwrite)
+
+
+class ChallengeFile(_BaseSaveFile["ChallengeFileType"]):
+    _profit_earned: int
+    _finished_challenge: bool
+    _submitted_score: bool
+    _file_game_version: int
+    _challenge_week_number: int
+    _set_challenge_file_money: bool
+
+    __slots__ = (
+        "_profit_earned",
+        "_finished_challenge",
+        "_submitted_score",
+        "_file_game_version",
+        "_challenge_week_number",
+        "_set_challenge_file_money",
+    )
+
+    def validate_contents(self, data: ChallengeFileType) -> None:
+        if not any([data.get("ProfitEarned"), data.get("FinishedChallenge"), data.get("SubmittedScore")]):
+            raise ValueError("This doesn't appear to be a valid Challenge file.")
+
+    def _parse_file(self) -> None:
+        super()._parse_file()
+
+        self._profit_earned = self._inner_data["ProfitEarned"]["value"]
+        self._finished_challenge = self._inner_data["FinishedChallenge"]["value"]
+        self._submitted_score = self._inner_data["SubmittedScore"]["value"]
+        self._file_game_version = self._inner_data.get("FileGameVers", {"__type": "int", "value": 48})["value"]
+        self._challenge_week_number = self._inner_data.get("FileGameVers", {"__type": "int", "value": 4})["value"]
+        self._set_challenge_file_money = self._inner_data.get("SetChallengeFileMoney", {"__type": "bool", "value": False})[
+            "value"
+        ]
+
+        self._extra_data = {}
+
+    @property
+    def profit_earned(self) -> int:
+        return self._profit_earned
+
+    @property
+    def finished_challenge(self) -> bool:
+        return self._finished_challenge
+
+    @property
+    def submitted_score(self) -> int:
+        return self._submitted_score
+
+    @property
+    def file_game_version(self) -> int:
+        return self._file_game_version
+
+    @property
+    def challenge_week_number(self) -> int:
+        return self._challenge_week_number
+
+    @property
+    def set_challenge_file_money(self) -> bool:
+        return self._set_challenge_file_money
