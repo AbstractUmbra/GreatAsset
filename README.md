@@ -34,25 +34,20 @@ Add 6000 credits and unlock all possible (found) ship upgrades.
 
 ```py
 import os
-import pathlib
 
 import great_asset
 
-SAVE_FILE_LOCATION = pathlib.Path(os.getenv("USERPROFILE")) / "AppData" / "LocalLow" / "ZeekerssRBLX" / "Lethal Company"
-SAVE_FILE_1 = SAVE_FILE_LOCATION / "LCSaveFile1"
-
 def main() -> None:
-    save = great_asset.SaveFile(SAVE_FILE_1)
+    # The classmethod here will resolve the full path to the save file and use save number `1`
+    with great_asset.SaveFile.resolve_from_file(1) as save:
+        # update credits to 6000
+        save.update_credits(6000)
 
-    # update credits to 6000
-    save.update_credits(6000)
+        # unlock all items within `great_asset.ShipUnlock` enum.
+        save.unlock_all_ship_upgrades()
 
-    # unlock all items within `great_asset.ShipUnlock` enum.
-    save.unlock_all_ship_upgrades()
-
-    # serialise the data we changed to the save file format
-    # and dump & overwrite the passed save file above.
-    save.write()
+        # normally without the context manager you'd call the `save.write()` method but this is not necessary
+        # as it is called upon exiting the context manager if there are no errors
 ```
 
 
