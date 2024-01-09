@@ -26,7 +26,7 @@ from __future__ import annotations
 
 import random
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar
 
 from .crypt import decrypt, encrypt
 from .enums import BestiaryEntry, ExtraUnlock, Item, Moon, Scrap, ShipUnlock
@@ -42,6 +42,8 @@ if TYPE_CHECKING:
         SaveFile as SaveFileType,
     )
     from .types_.shared import *
+
+SaveT = TypeVar("SaveT", "SaveFileType", "ConfigFileType")
 
 TEMP_FILE = Path("./_previously_decrypted_file.json")
 TIPS = [
@@ -61,10 +63,18 @@ __all__ = (
 )
 
 
-class _BaseSaveFile:
-    _inner_data: SaveFileType | ConfigFileType
+class _BaseSaveFile(Generic[SaveT]):
+    _inner_data: SaveT
     _file_type: str
     _extra_data: dict[str, Any]
+
+    __slots__ = (
+        "_inner_data",
+        "_file_type",
+        "_extra_data",
+        "_written",
+        "path",
+    )
 
     def __init__(self, path: str | PathLike[str] | Path, /) -> None:
         if not isinstance(path, Path):
@@ -75,6 +85,13 @@ class _BaseSaveFile:
 
         self.path: Path = path
         self._parse_file()
+
+    def __enter__(self) -> Self:
+        return self
+
+    def __exit__(self, *args: Any) -> None:
+        if not self._written:
+            self.write()
 
     def validate_contents(self, data: SaveFileType | ConfigFileType, /) -> None:
         raise NotImplementedError
@@ -116,6 +133,8 @@ class _BaseSaveFile:
         if dump_to_file:
             self._dump(overwrite=overwrite)
 
+        self._written = True
+
     def _dump(self, overwrite: bool) -> None:
         decrypted_result = _to_json(self._inner_data)
 
@@ -130,9 +149,8 @@ class _BaseSaveFile:
             fp.write(encrypted_result)
 
 
-class SaveFile(_BaseSaveFile):
+class SaveFile(_BaseSaveFile["SaveFileType"]):
     # late init variable types
-    _inner_data: SaveFileType
     _extra_data: dict[str, Any]
 
     _credits: int
@@ -146,7 +164,7 @@ class SaveFile(_BaseSaveFile):
     _steps_taken: int
 
     __slots__ = (
-        "_inner_data",  # type: ignore # we're handling this per class
+        "_inner_data",
         "_extra_data",
         "_credits",
         "_current_planet_id",
@@ -162,6 +180,7 @@ class SaveFile(_BaseSaveFile):
         "_enemy_scans",
         "_ship_item_save_data",
         "_unlocked_ship_objects",
+        "_scrap",
         "__ship_grabbable_items",
         "__ship_grabbable_item_positions",
         "__ship_scrap",
@@ -645,8 +664,7 @@ class SaveFile(_BaseSaveFile):
         super().write(dump_to_file=dump_to_file, overwrite=overwrite)
 
 
-class ConfigFile(_BaseSaveFile):
-    _inner_data: ConfigFileType  # type: ignore # subclass narrows the type
+class ConfigFile(_BaseSaveFile["ConfigFileType"]):
     _extra_data: dict[str, Any]
 
     # late init types
