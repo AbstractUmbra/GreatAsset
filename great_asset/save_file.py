@@ -621,8 +621,10 @@ class SaveFile(_BaseSaveFile["SaveFileType"]):
             A series of tuples with the item and it's position to spawn in.
             Using ``None`` as the second value will spawn at a default area near the door of the ship internally.
         """
+        cupboard_position = self._inner_data.get("ShipUnlockPos_Cupboard")
+
         for item, position in items:
-            vec = position or Vector.in_cupboard()
+            vec = position or Vector.in_cupboard(cupboard_position=cupboard_position)
             if isinstance(item, Scrap):
                 value = random.randint(value_min, value_max)
                 self._scrap.append(GrabbableScrap(item.value, value, vec.serialise()))

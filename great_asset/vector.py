@@ -33,7 +33,7 @@ BOTTOM_SHELF = 1.0
 SHELVES = [TOP_SHELF, UPPER_SHELF, LOWER_SHELF, BOTTOM_SHELF]
 
 if TYPE_CHECKING:
-    from .types_.save_file import InnerVectorValue
+    from .types_.save_file import InnerVectorValue, VectorValue
 
 __all__ = ("Vector",)
 
@@ -52,7 +52,14 @@ class Vector:
         return cls(-3.5, 2.5, -12.5)
 
     @classmethod
-    def in_cupboard(cls) -> Vector:
+    def in_cupboard(cls, cupboard_position: VectorValue | None = None) -> Vector:
+        if cupboard_position:
+            position = cls.from_dict(cupboard_position["value"])
+            return cls(
+                uniform(position.x, position.x - 0.5),
+                choice(SHELVES),
+                uniform(position.z, position.z - 0.5),
+            )
         return cls(uniform(-3.0, -3.5), choice(SHELVES), uniform(-12, -12.5))
 
     @classmethod
