@@ -36,6 +36,7 @@ from .vector import Vector
 
 if TYPE_CHECKING:
     from os import PathLike
+    from types import TracebackType
 
     from .types_.config_file import ConfigFile as ConfigFileType
     from .types_.save_file import (
@@ -67,6 +68,7 @@ class _BaseSaveFile(Generic[SaveT]):
     _inner_data: SaveT
     _file_type: str
     _extra_data: dict[str, Any]
+    _written: bool
 
     __slots__ = (
         "_inner_data",
@@ -77,6 +79,8 @@ class _BaseSaveFile(Generic[SaveT]):
     )
 
     def __init__(self, path: str | PathLike[str] | Path, /) -> None:
+        self._written = False
+
         if not isinstance(path, Path):
             path = Path(path)
 
@@ -89,8 +93,10 @@ class _BaseSaveFile(Generic[SaveT]):
     def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, *args: Any) -> None:
-        if not self._written:
+    def __exit__(
+        self, exc_type: type[BaseException] | None, exc_value: BaseException | None, traceback: TracebackType | None
+    ) -> None:
+        if not self._written and not exc_type:
             self.write()
 
     def validate_contents(self, data: SaveFileType | ConfigFileType, /) -> None:
