@@ -69,16 +69,19 @@ class _BaseSaveFile(Generic[SaveT]):
     _file_type: str
     _extra_data: dict[str, Any]
     _written: bool
+    _skip_parsing: bool
 
     __slots__ = (
         "_inner_data",
         "_file_type",
         "_extra_data",
         "_written",
+        "_skip_parsing",
         "path",
     )
 
     def __init__(self, path: str | PathLike[str] | Path, /) -> None:
+        self._skip_parsing = False
         self._written = False
 
         if not isinstance(path, Path):
@@ -89,6 +92,24 @@ class _BaseSaveFile(Generic[SaveT]):
 
         self.path: Path = path
         self._parse_file()
+
+    @classmethod
+    def from_data(cls, *, data: bytes, path: Path | None = None) -> Self:
+        path = path or Path("./LCSaveFile1")
+
+        file = cls.__new__(cls)
+        file._skip_parsing = True
+
+        decrypted: SaveT = decrypt(data=data)
+
+        file.validate_contents(decrypted)
+
+        file._inner_data = decrypted
+
+        file.path = path
+        file._parse_file()
+
+        return file
 
     def __enter__(self) -> Self:
         return self
@@ -103,7 +124,10 @@ class _BaseSaveFile(Generic[SaveT]):
         raise NotImplementedError
 
     def _parse_file(self) -> None:
-        data = decrypt(self.path)
+        if self._skip_parsing:
+            return
+
+        data = decrypt(path=self.path)
 
         self.validate_contents(data)
 

@@ -68,12 +68,21 @@ def encrypt(path: str | PathLike[str] | Path, /) -> bytes:
     return encrypted_data
 
 
-def decrypt(path: str | PathLike[str] | Path, /) -> Any:  # it returns the type of file we decrypt but alas
-    if not isinstance(path, Path):
-        path = Path(path)
+def decrypt(
+    *, path: str | PathLike[str] | Path | None = None, data: bytes | None = None
+) -> Any:  # it returns the type of file we decrypt but alas
+    if not path and not data:
+        raise ValueError("Either `path` or `data` must be provided.")
 
-    with path.open("rb") as fp:
-        read_data = fp.read()
+    if path:
+        if not isinstance(path, Path):
+            path = Path(path)
+
+        with path.open("rb") as fp:
+            read_data = fp.read()
+    else:
+        read_data = data
+        assert read_data  # guarded earlier
 
     # The initialisation vector is the first 16 bytes of the save file.
     init_vector = read_data[:16]
