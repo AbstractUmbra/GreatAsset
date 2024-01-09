@@ -81,6 +81,7 @@ class ExtraUnlock(Enum):
     green_suit = 1
     hazard_suit = 2
     pyjama_suit = 3
+    purple_suit = 24
 
     @staticmethod
     def all() -> list["ExtraUnlock"]:
