@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "great_asset"
-version = "1.1.3"
+version = "1.2.0a"
 description = "A small headless library for editing Lethal Company save files."
 authors = ["Alex Nørgaard <umbra@abstractumbra.dev>"]
 
