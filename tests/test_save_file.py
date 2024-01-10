@@ -16,7 +16,7 @@ BASE_PATH = Path(__file__).parent
 
 def make_save(number: Literal[1, 2, 3]) -> SaveFile:
     path = BASE_PATH / f"./save_files/LCSaveFile{number}"
-    return SaveFile(path)
+    return SaveFile.from_path(path)
 
 
 class TestSaveFile:
@@ -31,10 +31,10 @@ class TestSaveFile:
         save_file_1.update_credits(2820)
         save_file_2.update_credits(312)
 
-        save_file_1.write(dump_to_file=False)
+        save_file_1.write()
         assert save_file_1._inner_data["GroupCredits"]["value"] == 2820
 
-        save_file_2.write(dump_to_file=False)
+        save_file_2.write()
         assert save_file_2._inner_data["GroupCredits"]["value"] == 312
 
     def test_adding_teleporter(self) -> None:
@@ -42,7 +42,7 @@ class TestSaveFile:
 
         save_file_1.unlock_ship_upgrades(ShipUnlock.teleporter)
 
-        save_file_1.write(dump_to_file=False)
+        save_file_1.write()
 
         assert (
             ShipUnlock.teleporter.serialised_value in save_file_1._inner_data["UnlockedShipObjects"]["value"]
@@ -56,7 +56,7 @@ class TestSaveFile:
 
         save_file_2.remove_ship_upgrades(ShipUnlock.teleporter)
 
-        save_file_2.write(dump_to_file=False)
+        save_file_2.write()
 
         assert (
             ShipUnlock.teleporter.serialised_value not in save_file_2._inner_data["UnlockedShipObjects"]["value"]
@@ -165,7 +165,7 @@ class TestSaveFile:
         assert item.serialised_value in save._unlocked_ship_objects["value"]
         assert serialised_name in save._extra_data
 
-        save.write(dump_to_file=False, overwrite=False)
+        save.write()
 
         assert item.serialised_value in save._inner_data["UnlockedShipObjects"]["value"]
         assert save._inner_data[serialised_name]["value"] is True
@@ -179,7 +179,7 @@ class TestSaveFile:
 
         assert save._scrap[-1].id == scrap.value
 
-        save.write(dump_to_file=False, overwrite=False)
+        save.write()
 
         # get the index for the item
         idx = save._inner_data["shipGrabbableItemIDs"]["value"].index(scrap.value)  # type: ignore[reportTypedDictNotRequiredAccess] # we know it's here.

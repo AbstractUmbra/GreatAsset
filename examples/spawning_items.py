@@ -7,7 +7,7 @@ from great_asset import Item, SaveFile, Vector
 
 
 def main(save_path: str) -> None:
-    save = SaveFile(save_path)
+    save = SaveFile.from_path(save_path)
 
     # let's say we want to spawn in the "explorer toolkit" (4x shovel, walkie and flashlight)
     # we can define the items and their spawn positions in a tuple format:-

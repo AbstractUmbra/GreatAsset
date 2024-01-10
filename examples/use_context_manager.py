@@ -7,7 +7,7 @@ from great_asset import SaveFile, Scrap, Vector
 
 
 def main(save_path: str) -> None:
-    with SaveFile(save_path) as save:
+    with SaveFile.from_path(save_path) as save:
         save.update_credits(9999)
         save.spawn_items((Scrap.shotgun, None), (Scrap.shotgun_shell, Vector.in_cupboard()))
         save.update_deadline(8)

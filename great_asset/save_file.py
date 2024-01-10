@@ -78,40 +78,15 @@ class _BaseSaveFile(Generic[SaveT]):
         "_extra_data",
         "_written",
         "_skip_parsing",
-        "path",
+        "_raw_data",
     )
 
-    def __init__(self, path: str | PathLike[str] | Path, /) -> None:
+    def __init__(self, data: bytes, /) -> None:
         self._skip_parsing = False
         self._written = False
 
-        if not isinstance(path, Path):
-            path = Path(path)
-
-        if not path.exists():
-            raise ValueError("The path given does not exist")
-
-        self.path: Path = path
+        self._raw_data: bytes = data
         self._parse_file()
-
-    @classmethod
-    def from_data(cls, *, data: bytes, path: Path | None = None, save_number: SaveValue | None = None) -> Self:
-        _number = save_number or ""
-        path = path or Path(f"./LCSaveFile{_number}")
-
-        file = cls.__new__(cls)
-        file._skip_parsing = True
-
-        decrypted: SaveT = decrypt(data=data)
-
-        file.validate_contents(decrypted)
-
-        file._inner_data = decrypted
-
-        file.path = path
-        file._parse_file()
-
-        return file
 
     def __enter__(self) -> Self:
         return self
@@ -122,14 +97,22 @@ class _BaseSaveFile(Generic[SaveT]):
         if not self._written and not exc_type:
             self.write()
 
-    def validate_contents(self, data: SaveT, /) -> None:
-        raise NotImplementedError
+    @classmethod
+    def from_path(cls, path: Path | PathLike[Any] | str) -> Self:
+        if not isinstance(path, Path):
+            path = Path(path)
+
+        if not path.exists():
+            raise FileNotFoundError("The passed file is not found.")
+
+        with path.open("rb") as fp:
+            return cls(fp.read())
 
     def _parse_file(self) -> None:
         if self._skip_parsing:
             return
 
-        data = decrypt(path=self.path)
+        data = decrypt(data=self._raw_data)
 
         self.validate_contents(data)
 
@@ -158,16 +141,7 @@ class _BaseSaveFile(Generic[SaveT]):
         except KeyError:
             self._inner_data[key_name] = {"__type": _type, "value": value}
 
-    def write(self, *, dump_to_file: bool = True, overwrite: bool = True) -> None:
-        for key, value in self._extra_data.items():
-            self._upsert_value(key, value)
-
-        if dump_to_file:
-            self._dump(overwrite=overwrite)
-
-        self._written = True
-
-    def _dump(self, overwrite: bool) -> None:
+    def _dump(self, path: Path, /) -> None:
         decrypted_result = _to_json(self._inner_data)
 
         with TEMP_FILE.open("wb") as fp:
@@ -175,10 +149,20 @@ class _BaseSaveFile(Generic[SaveT]):
 
         encrypted_result = encrypt(TEMP_FILE)
 
-        p = self.path if overwrite else self.path.with_suffix(".over")
-
-        with p.open("wb") as fp:
+        with path.open("wb") as fp:
             fp.write(encrypted_result)
+
+    def write(self, *, path: Path | None = None) -> None:
+        for key, value in self._extra_data.items():
+            self._upsert_value(key, value)
+
+        if path:
+            self._dump(path)
+
+        self._written = True
+
+    def validate_contents(self, data: SaveT, /) -> None:
+        raise NotImplementedError
 
 
 class SaveFile(_BaseSaveFile["SaveFileType"]):
@@ -223,18 +207,16 @@ class SaveFile(_BaseSaveFile["SaveFileType"]):
     def resolve_from_file(cls, save_file_number: SaveValue, /) -> SaveFile:
         path = resolve_save_path(save_file_number)
 
-        return cls(path)
+        return cls.from_path(path)
 
     def validate_contents(self, data: SaveFileType, /) -> None:  # type: ignore # we narrowed the type in the subclass
-        if not any(
-            [
-                data.get("GroupCredits"),
-                data.get("DeadlineTime"),
-                data.get("Stats_StepsTaken"),
-                data.get("Stats_DaysSpent"),
-                data.get("ProfitQuota"),
-                data.get("CurrentPlanetID"),
-            ]
+        if not (
+            data.get("GroupCredits")
+            or data.get("DeadlineTime")
+            or data.get("Stats_StepsTaken")
+            or data.get("Stats_DaysSpent")
+            or data.get("ProfitQuota")
+            or data.get("CurrentPlanetID")
         ):
             raise ValueError("This doesn't appear to be a valid Lethal Company save file!")
 
@@ -658,7 +640,7 @@ class SaveFile(_BaseSaveFile["SaveFileType"]):
     def _generate_seed(self, *, max: int = 99999999, min: int = 10000000) -> int:
         return random.randint(min, max)
 
-    def write(self, *, dump_to_file: bool = True, overwrite: bool = True) -> None:
+    def write(self, *, path: Path | None = None) -> None:
         """
         A function to write the save file data to the internal data structure.
 
@@ -685,7 +667,7 @@ class SaveFile(_BaseSaveFile["SaveFileType"]):
         self._inner_data["shipGrabbableItemIDs"] = self.__ship_grabbable_items
         self._inner_data["shipGrabbableItemPos"] = self.__ship_grabbable_item_positions
 
-        super().write(dump_to_file=dump_to_file, overwrite=overwrite)
+        super().write(path=path)
 
 
 class ConfigFile(_BaseSaveFile["ConfigFileType"]):
@@ -715,8 +697,12 @@ class ConfigFile(_BaseSaveFile["ConfigFileType"]):
     _tips: dict[str, BoolValue]
 
     def validate_contents(self, data: ConfigFileType, /) -> None:  # type: ignore # subclass narrows the type
-        if not any(
-            [data.get("SelectedFile"), data.get("FPSCap"), data.get("Gamma"), data.get("LookSens"), data.get("ScreenMode")]
+        if not (
+            data.get("SelectedFile")
+            or data.get("FPSCap")
+            or data.get("Gamma")
+            or data.get("LookSens")
+            or data.get("ScreenMode")
         ):  # This is not a General Config File
             raise ValueError("This doesn't appear to be a valid Lethal Company config file!")
 
@@ -827,7 +813,7 @@ class ConfigFile(_BaseSaveFile["ConfigFileType"]):
         if 0 <= value <= 1:
             self.gamma = value
 
-    def write(self, *, dump_to_file: bool = True, overwrite: bool = True) -> None:
+    def write(self, *, path: Path | None = None) -> None:
         self._upsert_value("SpiderSafeMode", self.arachnophobia_mode)
         self._upsert_value("InvertYAxis", self.y_axis_inverted)
         self._upsert_value("ScreenMode", self.screen_mode)
@@ -851,7 +837,7 @@ class ConfigFile(_BaseSaveFile["ConfigFileType"]):
         for idx, tip in enumerate(self._tips):
             self._upsert_value(TIPS[idx], tip)
 
-        super().write(dump_to_file=dump_to_file, overwrite=overwrite)
+        super().write(path=path)
 
 
 class ChallengeFile(_BaseSaveFile["ChallengeFileType"]):
@@ -872,7 +858,7 @@ class ChallengeFile(_BaseSaveFile["ChallengeFileType"]):
     )
 
     def validate_contents(self, data: ChallengeFileType) -> None:
-        if not any([data.get("ProfitEarned"), data.get("FinishedChallenge"), data.get("SubmittedScore")]):
+        if not (data.get("ProfitEarned") or data.get("FinishedChallenge") or data.get("SubmittedScore")):
             raise ValueError("This doesn't appear to be a valid Challenge file.")
 
     def _parse_file(self) -> None:
