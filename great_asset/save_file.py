@@ -209,15 +209,16 @@ class SaveFile(_BaseSaveFile["SaveFileType"]):
 
         return cls.from_path(path)
 
-    def validate_contents(self, data: SaveFileType, /) -> None:  # type: ignore # we narrowed the type in the subclass
-        if not (
-            data.get("GroupCredits")
-            or data.get("DeadlineTime")
-            or data.get("Stats_StepsTaken")
-            or data.get("Stats_DaysSpent")
-            or data.get("ProfitQuota")
-            or data.get("CurrentPlanetID")
-        ):
+    def validate_contents(self, data: SaveFileType, /) -> None:
+        _required_keys = (
+            "GroupCredits",
+            "DeadlineTime",
+            "Stats_StepsTaken",
+            "Stats_DaysSpent",
+            "ProfitQuota",
+            "CurrentPlanetID",
+        )
+        if any(key not in data for key in _required_keys):
             raise ValueError("This doesn't appear to be a valid Lethal Company save file!")
 
     def _parse_file(self) -> None:
@@ -696,14 +697,9 @@ class ConfigFile(_BaseSaveFile["ConfigFileType"]):
     _played_entrance_1: BoolValue
     _tips: dict[str, BoolValue]
 
-    def validate_contents(self, data: ConfigFileType, /) -> None:  # type: ignore # subclass narrows the type
-        if not (
-            data.get("SelectedFile")
-            or data.get("FPSCap")
-            or data.get("Gamma")
-            or data.get("LookSens")
-            or data.get("ScreenMode")
-        ):  # This is not a General Config File
+    def validate_contents(self, data: ConfigFileType, /) -> None:
+        _required_keys = ("SelectedFile", "FPSCap", "Gamma", "LookSens", "ScreenMode")
+        if any(key not in data for key in _required_keys):
             raise ValueError("This doesn't appear to be a valid Lethal Company config file!")
 
     def _parse_file(self) -> None:
@@ -858,7 +854,8 @@ class ChallengeFile(_BaseSaveFile["ChallengeFileType"]):
     )
 
     def validate_contents(self, data: ChallengeFileType) -> None:
-        if not (data.get("ProfitEarned") or data.get("FinishedChallenge") or data.get("SubmittedScore")):
+        _required_keys = ("ProfitEarned", "FinishedChallenge", "SubmittedScore")
+        if any(key not in data for key in _required_keys):
             raise ValueError("This doesn't appear to be a valid Challenge file.")
 
     def _parse_file(self) -> None:
