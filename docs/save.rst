@@ -9,6 +9,16 @@ SaveFile
 .. autoclass:: SaveFile
     :members:
 
+ConfigFile
+----------
+.. autoclass:: ConfigFile
+    :members:
+
+ChallengeFile
+-------------
+.. autoclass:: ChallengeFile
+    :members:
+
 Enumerations
 ------------
 

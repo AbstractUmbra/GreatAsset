@@ -62,6 +62,7 @@ TIPS = [
 __all__ = (
     "SaveFile",
     "ConfigFile",
+    "ChallengeFile",
 )
 
 
@@ -114,7 +115,7 @@ class _BaseSaveFile(Generic[SaveT]):
 
         data = decrypt(data=self._raw_data)
 
-        self.validate_contents(data)
+        self._validate_contents(data)
 
         self._inner_data = data
 
@@ -161,11 +162,20 @@ class _BaseSaveFile(Generic[SaveT]):
 
         self._written = True
 
-    def validate_contents(self, data: SaveT, /) -> None:
+    def _validate_contents(self, data: SaveT, /) -> None:
         raise NotImplementedError
 
 
 class SaveFile(_BaseSaveFile["SaveFileType"]):
+    """
+    A Lethal Company save file.
+
+    Parameters
+    -----------
+    data: :class:`bytes`
+        The data read from the save file.
+    """
+
     # late init variable types
     _extra_data: dict[str, Any]
 
@@ -200,16 +210,23 @@ class SaveFile(_BaseSaveFile["SaveFileType"]):
         "__ship_grabbable_items",
         "__ship_grabbable_item_positions",
         "__ship_scrap",
-        "path",
     )
 
     @classmethod
     def resolve_from_file(cls, save_file_number: SaveValue, /) -> SaveFile:
+        """
+        A class method to find, open and return a save file from the default save file location (Windows) with the given file number.
+
+        Parameters
+        -----------
+        save_file_number: Literal[``1``, ``2``, ``3``]
+            The numbered save to open.
+        """
         path = resolve_save_path(save_file_number)
 
         return cls.from_path(path)
 
-    def validate_contents(self, data: SaveFileType, /) -> None:
+    def _validate_contents(self, data: SaveFileType, /) -> None:
         _required_keys = (
             "GroupCredits",
             "DeadlineTime",
@@ -220,6 +237,9 @@ class SaveFile(_BaseSaveFile["SaveFileType"]):
         )
         if any(key not in data for key in _required_keys):
             raise ValueError("This doesn't appear to be a valid Lethal Company save file!")
+
+    def _generate_seed(self, *, max: int = 99999999, min: int = 10000000) -> int:
+        return random.randint(min, max)
 
     def _parse_file(self) -> None:
         super()._parse_file()
@@ -638,9 +658,6 @@ class SaveFile(_BaseSaveFile["SaveFileType"]):
         """
         return [Scrap(item.id) for item in self._scrap]
 
-    def _generate_seed(self, *, max: int = 99999999, min: int = 10000000) -> int:
-        return random.randint(min, max)
-
     def write(self, *, path: Path | None = None) -> None:
         """
         A function to write the save file data to the internal data structure.
@@ -697,7 +714,7 @@ class ConfigFile(_BaseSaveFile["ConfigFileType"]):
     _played_entrance_1: BoolValue
     _tips: dict[str, BoolValue]
 
-    def validate_contents(self, data: ConfigFileType, /) -> None:
+    def _validate_contents(self, data: ConfigFileType, /) -> None:
         _required_keys = ("SelectedFile", "FPSCap", "Gamma", "LookSens", "ScreenMode")
         if any(key not in data for key in _required_keys):
             raise ValueError("This doesn't appear to be a valid Lethal Company config file!")
@@ -853,7 +870,7 @@ class ChallengeFile(_BaseSaveFile["ChallengeFileType"]):
         "_set_challenge_file_money",
     )
 
-    def validate_contents(self, data: ChallengeFileType) -> None:
+    def _validate_contents(self, data: ChallengeFileType) -> None:
         _required_keys = ("ProfitEarned", "FinishedChallenge", "SubmittedScore")
         if any(key not in data for key in _required_keys):
             raise ValueError("This doesn't appear to be a valid Challenge file.")
