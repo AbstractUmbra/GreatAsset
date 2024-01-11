@@ -43,12 +43,19 @@ __all__ = (
 )
 
 
-def encrypt(path: str | PathLike[str] | Path, /) -> bytes:
-    if not isinstance(path, Path):
-        path = Path(path)
+def encrypt(*, path: str | PathLike[str] | Path | None = None, data: bytes | None = None) -> bytes:
+    if not path and not data:
+        raise ValueError("Either `path` or `data` must be provided.")
 
-    with path.open("rb") as fp:
-        data_to_encrypt = fp.read()
+    if path:
+        if not isinstance(path, Path):
+            path = Path(path)
+
+        with path.open("rb") as fp:
+            data_to_encrypt = fp.read()
+    else:
+        data_to_encrypt = data
+        assert data_to_encrypt  # guarded earlier
 
     # Generate a random IV (Initialization Vector)
     init_vector = Random.new().read(16)

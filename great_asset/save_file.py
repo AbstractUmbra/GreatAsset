@@ -145,10 +145,12 @@ class _BaseSaveFile(Generic[SaveT]):
     def _dump(self, path: Path, /) -> None:
         decrypted_result = _to_json(self._inner_data)
 
-        with TEMP_FILE.open("wb") as fp:
-            fp.write(decrypted_result.encode("utf-8"))
+        encoded = decrypted_result.encode()
 
-        encrypted_result = encrypt(TEMP_FILE)
+        with TEMP_FILE.open("wb") as fp:
+            fp.write(encoded)
+
+        encrypted_result = encrypt(data=encoded)
 
         with path.open("wb") as fp:
             fp.write(encrypted_result)
