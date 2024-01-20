@@ -1,23 +1,24 @@
-1.1.3
+1.2.0
 
 # great_asset Changelog
 
 ## Added
-- Finalised the `ShipUnlock` enum (as of game ver .45). (db253f92547ff96a36c2ed78c55524682480d5e1)
-- Some examples. (174002ba8ddcb67d595061f3ae1144cad7e1d468)
-- `_BaseSaveFile.__enter__`/`__exit__` for ease of use, and relevant example. (6d708964adde1eacb3ab87e2db231069050cccae and 174002ba8ddcb67d595061f3ae1144cad7e1d468 and 1c042541f61a763bc7b00f5e3b137198cadd3246)
-- `_BaseSaveFile.from_data` classmethod to allow creation of an object from the raw `bytes` rather than a `Path`. (d576be089f7f76fb18016a08bf5ff61a13cd14b8)
+- Added new purple suit ship unlock. (274902b8a43f87a4b6c3635d915d25c3eaff4e66)
+- Add parameter to all classmethods or constructors for creating a specific save number. (f3b7e5ed1500871d9493ec0572f5670c236a8ef9)
+- Added handling for new challenge mode save files. (e35fb5ddfc45443713b7eed703615151c96ee1df)
+- Change constructors to take raw data and change to classmethod for using `pathlib.Path`. (c901274abd01c28a9a5d45bad3a8b88810e54b38)
+- Missing documentation items. (e8ddc60090796ed5f9335815b4348951b383b203)
+- New example for file opening. (2b381be3eea823f7445ec44ff0d337affd33ba7a)
 
 ## Fixed
-- The way in which we spawn items. (04963a38cacb8d1a2a3223367b0ba6df800a7b50)
-  - This likely deserves a post of it's own but the tl;dr is that items on the ship are directly `zip`able with the scrap values key.
+- Fix ways we parse the file contents for validaty, increasing speed. (02efe8607581a867e020f6171dfe25ad009370b3)
+- Examples directory now covered by tooling. (a377e0b3fd6d3997f763643f3b0f95acbd66569b)
 
 ## Changed
-- Some `Item`s were split into the `Scrap` enum for better separation of item/scrap. (3d4b3309125c2004744b772699e5b86f32284966)
-- `Vector.on_cupboard` -> `Vector.in_cupboard`. (3ee802b61d54459cdab819f3d4322a98fa20b726)
-- `Vector.default` and `Vector.in_cupboard`'s `x` value was a little askew. (092e61a63943b61fa7583723995ba72222b687e4 and 92579775a159e2e7426386b29fe44d2a6f357e00)
-- Removed `SaveFile`'s `__init__` so that the base class' is utilised. (ee7bab52df5beabee9cdccb5713306926dbdcdd6)
+- `Vector.in_cupboard` now accounts for the current position of the cupboard if it was changed. (17accc554397808803ce1d95be5fadee9a4cbb59)
+- Readme updates. (565785bce07bb72331993f514e12c08fa015eb5a)
 
 ### Notes
+Project now runs at a minver of Python 3.8.
 
 ### Noted Contributors
