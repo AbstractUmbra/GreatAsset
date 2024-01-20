@@ -26,7 +26,7 @@ from __future__ import annotations
 
 import random
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from .crypt import decrypt, encrypt
 from .enums import BestiaryEntry, ExtraUnlock, Item, Moon, Scrap, ShipUnlock
@@ -37,6 +37,8 @@ from .vector import Vector
 if TYPE_CHECKING:
     from os import PathLike
     from types import TracebackType
+
+    from typing_extensions import Self
 
     from .types_.challenge_file import ChallengeFile as ChallengeFileType
     from .types_.config_file import ConfigFile as ConfigFileType

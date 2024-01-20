@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+from __future__ import annotations
 
 from enum import Enum
 
@@ -72,7 +73,7 @@ class ShipUnlock(Enum):
         return self._serialised_name
 
     @staticmethod
-    def all() -> list["ShipUnlock"]:
+    def all() -> list[ShipUnlock]:
         return list(ShipUnlock)
 
 
@@ -84,7 +85,7 @@ class ExtraUnlock(Enum):
     purple_suit = 24
 
     @staticmethod
-    def all() -> list["ExtraUnlock"]:
+    def all() -> list[ExtraUnlock]:
         return list(ExtraUnlock)
 
 
@@ -117,7 +118,7 @@ class BestiaryEntry(Enum):
     nutcracker = 17
 
     @staticmethod
-    def all() -> list["BestiaryEntry"]:
+    def all() -> list[BestiaryEntry]:
         return list(BestiaryEntry)
 
 

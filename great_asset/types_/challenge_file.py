@@ -24,9 +24,12 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from typing import Required, TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from .shared import *
+
+if TYPE_CHECKING:
+    from typing_extensions import Required
 
 __all__ = ("ChallengeFile",)
 

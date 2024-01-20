@@ -32,13 +32,14 @@ packages = [
 "Discord" = "https://discord.gg/aYGYJxwqe5"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.8"
 pycryptodome = "^3.19.0"
 orjson = { version = "*", optional = true }
 
 [tool.poetry.group.dev.dependencies]
 ruff = "*"
 poethepoet = "*"
+Typing_extensions = "*"
 
 [tool.poetry.group.speed.dependencies]
 orjson = "*"
@@ -55,6 +56,7 @@ pytest = "*"
 speed = ["orjson"]
 
 [tool.ruff]
+target-version = "py38"
 line-length = 125
 select = [
     "C4",
@@ -88,6 +90,7 @@ ignore = [
     "ANN401",
 ]
 exclude = ["docs/"]
+
 [tool.ruff.isort]
 split-on-trailing-comma = true
 combine-as-imports = true
@@ -99,13 +102,13 @@ allow-star-arg-any = true
 inline-quotes = "single"
 
 [tool.pyright]
+pythonVersion = "3.8"
 venvPath = "."
 venv = ".venv/"
 exclude = ["**/__pycache__", "docs/**/*.py"]
 include = ["great_asset", "tests", "examples"]
 useLibraryCodeForTypes = true
 typeCheckingMode = "strict"
-pythonVersion = "3.11"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
