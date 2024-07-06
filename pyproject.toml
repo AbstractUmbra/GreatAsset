@@ -39,7 +39,7 @@ orjson = { version = "*", optional = true }
 [tool.poetry.group.dev.dependencies]
 ruff = "*"
 poethepoet = "*"
-Typing_extensions = "*"
+typing_extensions = "*"
 
 [tool.poetry.group.speed.dependencies]
 orjson = "*"
