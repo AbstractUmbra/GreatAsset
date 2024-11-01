@@ -28,6 +28,7 @@ import random
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
+from . import CRYPTO_PASSWORD
 from .crypt import decrypt, encrypt
 from .enums import BestiaryEntry, ExtraUnlock, Item, Moon, Scrap, ShipUnlock
 from .item import GrabbableScrap
@@ -108,14 +109,13 @@ class _BaseSaveFile(Generic[SaveT]):
         if not path.exists():
             raise FileNotFoundError("The passed file is not found.")
 
-        with path.open("rb") as fp:
-            return cls(fp.read())
+        return cls(path.read_bytes())
 
     def _parse_file(self) -> None:
         if self._skip_parsing:
             return
 
-        data = decrypt(data=self._raw_data)
+        data = decrypt(data=self._raw_data, password=CRYPTO_PASSWORD)
 
         self._validate_contents(data)
 
@@ -152,7 +152,7 @@ class _BaseSaveFile(Generic[SaveT]):
         with TEMP_FILE.open("wb") as fp:
             fp.write(encoded)
 
-        encrypted_result = encrypt(data=encoded)
+        encrypted_result = encrypt(data=encoded, password=CRYPTO_PASSWORD)
 
         with path.open("wb") as fp:
             fp.write(encrypted_result)

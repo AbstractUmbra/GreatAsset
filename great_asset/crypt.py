@@ -31,7 +31,6 @@ from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Util.Padding import pad, unpad
 
-from . import CRYPTO_PASSWORD
 from .utils import _from_json  # type: ignore # allowing this private usage
 
 if TYPE_CHECKING:
@@ -43,7 +42,7 @@ __all__ = (
 )
 
 
-def encrypt(*, path: str | PathLike[str] | Path | None = None, data: bytes | None = None) -> bytes:
+def encrypt(*, path: str | PathLike[str] | Path | None = None, data: bytes | None = None, password: str) -> bytes:
     if not path and not data:
         raise ValueError("Either `path` or `data` must be provided.")
 
@@ -61,7 +60,7 @@ def encrypt(*, path: str | PathLike[str] | Path | None = None, data: bytes | Non
     init_vector = Random.new().read(16)
 
     # Derive the key using PBKDF2 with SHA1 hash algorithm
-    key = PBKDF2(CRYPTO_PASSWORD, init_vector, dkLen=16, count=100)
+    key = PBKDF2(password, init_vector, dkLen=16, count=100)
 
     # Create AES cipher object
     cipher = AES.new(key, AES.MODE_CBC, init_vector)  # type: ignore # the upstream types aren't great
@@ -76,7 +75,7 @@ def encrypt(*, path: str | PathLike[str] | Path | None = None, data: bytes | Non
 
 
 def decrypt(
-    *, path: str | PathLike[str] | Path | None = None, data: bytes | None = None
+    *, path: str | PathLike[str] | Path | None = None, data: bytes | None = None, password: str
 ) -> Any:  # it returns the type of file we decrypt but alas
     if not path and not data:
         raise ValueError("Either `path` or `data` must be provided.")
@@ -97,7 +96,7 @@ def decrypt(
     _to_decrypt = read_data[16:]
 
     # create the decryption key from the provided data
-    decryption_key = PBKDF2(CRYPTO_PASSWORD, init_vector, dkLen=16, count=100)
+    decryption_key = PBKDF2(password, init_vector, dkLen=16, count=100)
 
     # with the key we create the needed cipher
     cipher = AES.new(decryption_key, AES.MODE_CBC, init_vector)  # type: ignore # the upstream types aren't great
