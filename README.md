@@ -20,6 +20,14 @@
 </div>
 <br>
 
+<div align="center">
+    <h1>Notice of archival</h1>
+    <b>This project was fun whilst it lasted. Sadly I've personally found myself unable to play the game, and as such I cannot continue having this repository seemingly public and/or active.</b>
+    <br>
+</div>
+
+---
+
 Welcome, great assets to The Company!
 
 ---
